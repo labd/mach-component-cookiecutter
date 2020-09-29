@@ -1,0 +1,12 @@
+{
+    "name": "example",
+    "description": "An example component",
+    "short_name": "{{ cookiecutter.name }}",
+    "component_identifier": "{{ cookiecutter.name|slugify|replace('-', '_') }}_component",
+    "provider": ["azure", "aws"],
+    "serverless": "yes",
+    "function_name": "{{ cookiecutter.short_name }}",
+    "shared_resource_group": "",
+    "function_storage_account": "",
+    "function_container_name": "code"
+}

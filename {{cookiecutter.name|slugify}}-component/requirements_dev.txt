@@ -1,0 +1,10 @@
+-r requirements.txt
+pytest==5.4.1
+pytest-cov==2.8.1
+pytest-mock==3.0.0
+isort
+flake8
+flake8-blind-except
+flake8-imports
+mypy
+black

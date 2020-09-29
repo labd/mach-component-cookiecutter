@@ -1,0 +1,5 @@
+features:
+  - name: provider
+    enabled: {% if cookiecutter.provider == 'azure' %}true{% else %}false{% endif %}
+    resources:
+      - azure-upload.sh

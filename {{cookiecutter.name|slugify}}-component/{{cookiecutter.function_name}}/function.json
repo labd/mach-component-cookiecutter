@@ -1,0 +1,30 @@
+{
+  "scriptFile": "handler.py",
+  "bindings": [
+    {
+      "authLevel": "function",
+      "type": "httpTrigger",
+      "direction": "in",
+      "name": "req",
+      "methods": [
+        "get",
+        "post",
+        "put",
+        "patch",
+        "delete"
+      ],
+      "route": "{{ cookiecutter.function_name }}/{*path}"
+    },
+    {
+      "type": "http",
+      "direction": "out",
+      "name": "$return"
+    }
+  ],
+  "logging": {
+    "fileLoggingMode": "always",
+    "logLevel": {
+      "default": "Debug"
+    }
+  }
+}

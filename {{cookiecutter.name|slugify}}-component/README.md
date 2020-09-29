@@ -1,0 +1,86 @@
+# {{ cookiecutter.name }} component
+
+MACH component
+
+
+# Usage
+
+Use the following attributes to configure this component in MACH:
+
+```yaml
+sites:
+  - identifier: some site
+    components:
+    - name: {{ cookiecutter.name }}
+      variables:
+        ...
+
+...
+
+components:
+- name: {{ cookiecutter.name }}
+  {% if cookiecutter.name != cookiecutter.short_name %}short_name: apiexts{% endif %}
+  source: ...
+  version: <git hash of version you want to release>
+```
+
+# Installation
+
+Create a virtualenv and install the dev dependencies.
+
+`make install`
+
+Make sure you have the following installed:
+
+{% if cookiecutter.provider == 'azure' %}
+- azure cli: https://docs.microsoft.com/en-us/cli/azure/install-azure-cli
+- azure functions core tools: https://github.com/Azure/azure-functions-core-tools
+{% elif cookiecutter.provider == 'aws' %}
+TODO...
+{% endif %}
+
+
+# Code style
+
+The Python source code should be formatted using [black](https://github.com/python/black) and isort.
+You can use `make format` to run them.
+
+This project uses [pre-commit](https://pre-commit.com) to validate the changed
+files before they are committed. You can install it on MacOS using brew:
+
+    $ brew install pre-commit
+
+In the repository you need to register the hooks in git the first time using:
+
+    $ pre-commit install
+
+The pre-commit config (`.pre-commit-config.yaml`) currently runs black and
+flake8.
+
+
+# Development
+
+{% if cookiecutter.provider == 'azure' %}
+You'll need to have the Azure functions core tools installed to be able to run the function locally;
+
+    $ brew tap azure/functions
+    $ brew install azure-functions-core-tools@3
+
+
+And create a `local.settings.json` based on the example:
+
+    $ cp local.settings.example.json local.settings.json
+
+Or retrieve it from Azure:
+
+    $ func azure functionapp fetch-app-settings <name of the function>
+{% endif %}
+
+{% if cookiecutter.serverless %}
+## Run the function
+{% if cookiecutter.provider == 'azure' %}
+The function can be run locally by running
+
+`func start --python`
+{% endif %}
+{% endif %}

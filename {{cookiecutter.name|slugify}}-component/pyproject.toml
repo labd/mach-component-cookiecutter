@@ -1,0 +1,12 @@
+[tool.black]
+exclude = '''
+/(
+    \.git          # root of the project
+  | \.mypy_cache
+  | \.python_packages
+  | \.pytest_cache
+)/
+'''
+
+[tool.isort]
+skip = ".python_packages"

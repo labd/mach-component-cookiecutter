@@ -15,5 +15,6 @@ reports/
 coverage.xml
 
 # IDE folders
+.vscode/
 .idea/
 local_env.sh

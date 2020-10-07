@@ -1,11 +1,11 @@
 {
     "name": "example",
-    "description": "An example component",
-    "short_name": "{{ cookiecutter.name }}",
-    "component_identifier": "{{ cookiecutter.name|slugify|replace('-', '_') }}_component",
+    "description": "{{ cookiecutter.name|replace('-', ' ')|replace('_', ' ')|title }} component",
+    "short_name": "{{ cookiecutter.name|replace('-', '')|replace('_', '') }}",
+    "component_identifier": "{{ cookiecutter.name|slugify(separator='_') }}_component",
     "provider": ["azure", "aws"],
     "serverless": "yes",
-    "function_name": "{{ cookiecutter.short_name }}",
+    "function_name": "{{ cookiecutter.name|slugify(separator='_') }}",
     "shared_resource_group": "",
     "function_storage_account": "",
     "function_container_name": "code"

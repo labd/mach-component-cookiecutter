@@ -1,9 +1,9 @@
-.PHONY: all
+.PHONY: all version
 
 ifdef GIT_VERSION
 VERSION := $(GIT_VERSION)
 else
-VERSION := $(shell git rev-parse --short HEAD)
+VERSION := $(shell git rev-parse --short HEAD 2>/dev/null || echo "0.0.0" )
 endif
 # shorter name because of azure
 NAME := {{ cookiecutter.short_name }}-$(VERSION)
@@ -11,6 +11,11 @@ ARTIFACT_NAME := $(NAME).zip
 WORKSPACE := $(shell pwd)
 BASENAME := $(shell basename $(CURDIR))
 LANGUAGE := "en"
+
+version:
+	@echo "Version: '${VERSION}'"
+	@echo "Name: '${NAME}'"
+	@echo "Artifect name: '${ARTIFACT_NAME}'"
 
 install:
 	pip install -r requirements_dev.txt

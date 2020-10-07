@@ -26,7 +26,7 @@ data "azurerm_storage_account_blob_container_sas" "code_access" {
 }
 
 locals {
-  package_name = format("%s-%s.zip", var.short_name, var.component_version)
+  package_name = format("{{ cookiecutter.short_name }}-%s.zip", var.component_version)
 }
 
 # Check if the version really exists
@@ -101,7 +101,7 @@ resource "azurerm_template_deployment" "function_keys" {
   parameters = {
     "functionApp" = azurerm_function_app.{{ cookiecutter.component_identifier }}.name
   }
-  resource_group_name = data.azurerm_resource_group.current.name
+  resource_group_name = var.resource_group_name
   deployment_mode     = "Incremental"
 
   template_body = <<BODY

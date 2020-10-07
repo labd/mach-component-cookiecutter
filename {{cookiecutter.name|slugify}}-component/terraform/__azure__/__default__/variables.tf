@@ -8,30 +8,6 @@ variable "name_prefix" {
   type = string
 }
 
-variable "context" {
-  type = object({
-    company     = string
-    agency      = string
-    provisioner = string
-    environment = string
-    solution    = string
-    entity      = string
-    region      = string
-    tags        = map(string)
-  })
-  default = {
-    company     = ""
-    agency      = ""
-    provisioner = ""
-    environment = ""
-    solution    = ""
-    entity      = ""
-    region      = ""
-    tags        = {}
-  }
-  description = "Default context to use for passing state between label modules"
-}
-
 variable "subscription_id" {
   type = string
 }
@@ -64,6 +40,12 @@ variable "app_service_plan_id" {
   type = string
 }
 
+variable "monitor_action_group_id" {
+  type        = string
+  description = "Azure Monitor action group to send alerts to."
+  default     = ""
+}
+
 variable "tags" {
   type        = map(string)
   default     = {}
@@ -86,10 +68,9 @@ variable "site" {
   description = "Identifier of the site."
 }
 
-variable "stores" {
-  type        = list(string)
-  default     = []
-  description = "List of Commercetools store keys used in this Commercetools environment."
+variable "ct_project_key" {
+  type = string
+  default = ""
 }
 
 variable "variables" {
@@ -107,9 +88,4 @@ variable "environment_variables" {
   type        = map(string)
   default     = {}
   description = "Explicit map of variables that should be put in this function's environment variables."
-}
-
-variable "ct_project_key" {
-  type = string
-  default = ""
 }

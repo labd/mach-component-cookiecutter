@@ -1,0 +1,8 @@
+{% if cookiecutter.provider == 'azure' %}
+__azure__
+terraform/__azure__/__default__
+terraform/__azure__/__api-extension__
+terraform/__azure__
+!__aws__
+!terraform/__aws__
+{% endif %}

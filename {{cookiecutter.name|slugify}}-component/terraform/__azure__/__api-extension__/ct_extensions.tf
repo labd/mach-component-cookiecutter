@@ -3,23 +3,13 @@ resource "commercetools_api_client" "{{ cookiecutter.component_identifier }}" {
   scope = local.ct_scopes
 }
 
-data "azurerm_resource_group" "current" {
-  name = var.resource_group_name
-}
-
-
-resource "commercetools_api_extension" "cart_actions" {
-  key = "create-cart"
+resource "commercetools_api_extension" "order_actions" {
+  key = "create-order"
 
   destination = {
     type                 = "http"
     url                  = "https://${azurerm_function_app.{{ cookiecutter.component_identifier }}.name}.azurewebsites.net/{{ cookiecutter.function_name }}"
     azure_authentication = local.function_app_key
-  }
-
-  trigger {
-    resource_type_id = "cart"
-    actions          = ["Create"]
   }
 
   trigger {

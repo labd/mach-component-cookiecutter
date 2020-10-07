@@ -1,0 +1,19 @@
+.DS_Store
+build/
+dist/
+.mypy_cache/
+.pytest_cache/
+__pycache__/
+*.mo
+.python_packages/
+*.zip
+local.settings.json
+
+htmlcov/
+reports/
+.coverage
+coverage.xml
+
+# IDE folders
+.idea/
+local_env.sh

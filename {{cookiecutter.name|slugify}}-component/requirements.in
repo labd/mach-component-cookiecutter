@@ -1,1 +1,3 @@
+azure-functions==1.4.0
+azure-functions-worker==1.1.6
 commercetools==11.0.0

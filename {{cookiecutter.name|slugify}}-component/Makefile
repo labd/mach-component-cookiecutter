@@ -3,7 +3,7 @@
 ifdef GIT_VERSION
 VERSION := $(GIT_VERSION)
 else
-VERSION := $(shell git rev-parse --short HEAD 2>/dev/null || echo "0.0.0" )
+VERSION := $(shell git rev-parse --short HEAD 2>/dev/null || echo "dev" )
 endif
 # shorter name because of azure
 NAME := {{ cookiecutter.short_name }}-$(VERSION)
@@ -25,7 +25,7 @@ pack:
 	func pack --build-native-deps --python
 	mv $(BASENAME).zip $(ARTIFACT_NAME)
 
-azure-upload:
+upload:
 	./azure-upload.sh $(ARTIFACT_NAME)
 
 clean: clean-lambda-package
@@ -37,7 +37,6 @@ clean: clean-lambda-package
 requirements:
 	pip install pip-tools
 	pip-compile requirements.in
-
 
 #
 # Testing
@@ -58,7 +57,7 @@ mypy:
 # Lint targets
 #
 format:
-	isort --recursive -y
+	isort .
 	black . 
 	terraform fmt terraform
 
@@ -66,11 +65,9 @@ lint: flake8 isort mypy
 
 
 isort:
-	pip install isort
-	isort --recursive --check-only
+	isort . --check-only
 
 flake8:
-	pip install flake8 flake8-debugger flake8-blind-except flake8-imports flake8-docstrings
 	flake8
 
 #

@@ -1,7 +1,6 @@
 import json
 import logging
-import os
-from typing import Dict, cast
+from typing import Dict
 from urllib.parse import urlparse
 
 from azure import functions as func
@@ -11,6 +10,7 @@ from commercetools._schemas._extension import ExtensionInputSchema
 from . import exceptions, order_handler
 
 logger = logging.getLogger(__name__)
+
 
 # This signature is type checked by Azure, so don't mess with it.
 def main(req: func.HttpRequest, context: func.Context) -> func.HttpResponse:
@@ -50,7 +50,7 @@ def handle_event(event: Dict) -> Dict:
 
     resource_type = event.get("resource", {}).get("typeId")
 
-    if resource_type != types.ExtensionResourceTypeId.ORDER.value:
+    if resource_type != types.ExtensionResourceTypeId.ORDER.value:  # noqa: E721
         logger.warning("Resourced unknown resource type: %s", resource_type)
         # silently fail so the action will still work
         return {}

@@ -30,9 +30,9 @@ locals {
 }
 
 # Check if the version really exists
-# data "external" "package_exists" {
-#   program = ["bash", "-c", "${path.module}/scripts/blob_exists.sh ${data.azurerm_storage_account.shared.primary_access_key} ${data.azurerm_storage_account.shared.name} ${data.azurerm_storage_container.code.name} ${local.package_name}"]
-# }
+data "external" "package_exists" {
+  program = ["bash", "-c", "${path.module}/scripts/blob_exists.sh ${data.azurerm_storage_account.shared.primary_access_key} ${data.azurerm_storage_account.shared.name} ${data.azurerm_storage_container.code.name} ${local.package_name}"]
+}
 
 locals {
   environment_variables = {
@@ -92,39 +92,5 @@ resource "azurerm_function_app" "{{ cookiecutter.component_identifier }}" {
 
   tags = var.tags
 
-  # depends_on = [data.external.package_exists]
-}
-
-# Get the functions keys out of the app
-resource "azurerm_template_deployment" "function_keys" {
-  name = "${azurerm_function_app.{{ cookiecutter.component_identifier }}.name}-function-keys"
-  parameters = {
-    "functionApp" = azurerm_function_app.{{ cookiecutter.component_identifier }}.name
-  }
-  resource_group_name = var.resource_group_name
-  deployment_mode     = "Incremental"
-
-  template_body = <<BODY
-  {
-      "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
-      "contentVersion": "1.0.0.0",
-      "parameters": {
-          "functionApp": {"type": "string", "defaultValue": ""}
-      },
-      "variables": {
-          "functionAppId": "[resourceId('Microsoft.Web/sites', parameters('functionApp'))]"
-      },
-      "resources": [
-      ],
-      "outputs": {
-          "functionkey": {
-              "type": "string",
-              "value": "[listkeys(concat(variables('functionAppId'), '/host/default'), '2018-11-01').functionKeys.default]"                                                                                }
-      }
-  }
-  BODY
-}
-
-locals {
-  function_app_key = lookup(azurerm_template_deployment.function_keys.outputs, "functionkey")
+  depends_on = [data.external.package_exists]
 }

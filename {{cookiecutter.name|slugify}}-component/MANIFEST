@@ -1,7 +1,8 @@
 {% if cookiecutter.provider == 'azure' %}
 __azure__
 terraform/__azure__/__default__
-terraform/__azure__/__api-extension__
+{% if cookiecutter.function_template != "none" %}terraform/__azure__/__{{ cookiecutter.function_template }}__{% endif %}
+!terraform/__azure__/__*
 terraform/__azure__
 !__aws__
 !terraform/__aws__

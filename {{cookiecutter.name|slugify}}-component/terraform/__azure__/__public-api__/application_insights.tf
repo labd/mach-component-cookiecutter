@@ -28,12 +28,16 @@ resource "azurerm_monitor_metric_alert" "exceptions" {
     threshold        = 0.9
   }
 
-  action {
-    action_group_id = var.monitor_action_group_id
+  dynamic "action" {
+    for_each = var.monitor_action_group_id == "" ? [] : [1]
+    
+    content {
+      action_group_id = var.monitor_action_group_id
 
-    # data sent with the webhook
-    webhook_properties = {
-      "component" : var.short_name
+      # data sent with the webhook
+      webhook_properties = {
+        "component" : var.short_name
+      }
     }
   }
 
@@ -87,12 +91,15 @@ resource "azurerm_monitor_metric_alert" "ping" {
     threshold        = 1000
   }
 
-  action {
-    action_group_id = var.monitor_action_group_id
+      for_each = var.monitor_action_group_id == "" ? [] : [1]
+      content {
+    action {
+      action_group_id = var.monitor_action_group_id
 
-    # data sent with the webhook
-    webhook_properties = {
-      "component" : var.short_name
+      # data sent with the webhook
+      webhook_properties = {
+        "component" : var.short_name
+      }
     }
   }
 

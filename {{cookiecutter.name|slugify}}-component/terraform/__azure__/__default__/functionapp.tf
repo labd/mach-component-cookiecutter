@@ -54,7 +54,7 @@ locals {
     # Azure deployment
     # Note: WEBSITE_RUN_FROM_ZIP is needed for consumption plan, but for app service plan this may need to be WEBSITE_RUN_FROM_PACKAGE instead.
     WEBSITE_RUN_FROM_ZIP           = "https://${data.azurerm_storage_account.shared.name}.blob.core.windows.net/${data.azurerm_storage_container.code.name}/${local.package_name}${data.azurerm_storage_account_blob_container_sas.code_access.sas}"
-    # APPINSIGHTS_INSTRUMENTATIONKEY = azurerm_application_insights.{{ cookiecutter.component_identifier }}.instrumentation_key
+    APPINSIGHTS_INSTRUMENTATIONKEY = azurerm_application_insights.insights.instrumentation_key
     FUNCTIONS_WORKER_RUNTIME       = "python"
   }
 

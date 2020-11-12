@@ -27,6 +27,9 @@ def use_resources(directory: str):
             continue
 
         source = os.path.join(directory, file_name)
+        _check_path = os.path.join(target_dir, file_name)
+        if os.path.exists(_check_path):
+            os.remove(_check_path)
         shutil.move(source, target_dir)
 
     delete_resource(directory)

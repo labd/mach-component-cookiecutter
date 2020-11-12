@@ -24,6 +24,7 @@ components:
   version: <git hash of version you want to release>
 ```
 
+{% if cookiecutter.function_app %}
 # Installation
 
 Create a virtualenv and install the dev dependencies.
@@ -32,12 +33,8 @@ Create a virtualenv and install the dev dependencies.
 
 Make sure you have the following installed:
 
-{% if cookiecutter.provider == 'azure' %}
 - azure cli: https://docs.microsoft.com/en-us/cli/azure/install-azure-cli
 - azure functions core tools: https://github.com/Azure/azure-functions-core-tools
-{% elif cookiecutter.provider == 'aws' %}
-TODO...
-{% endif %}
 
 
 # Code style
@@ -60,7 +57,6 @@ flake8.
 
 # Development
 
-{% if cookiecutter.provider == 'azure' %}
 You'll need to have the Azure functions core tools installed to be able to run the function locally;
 
     $ brew tap azure/functions
@@ -74,13 +70,9 @@ And create a `local.settings.json` based on the example:
 Or retrieve it from Azure:
 
     $ func azure functionapp fetch-app-settings <name of the function>
-{% endif %}
 
-{% if cookiecutter.serverless %}
 ## Run the function
-{% if cookiecutter.provider == 'azure' %}
 The function can be run locally by running
 
 `func start --python`
-{% endif %}
 {% endif %}

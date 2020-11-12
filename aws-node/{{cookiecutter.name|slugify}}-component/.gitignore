@@ -1,0 +1,9 @@
+# package directories
+node_modules/
+.serverless/
+.webpackCache/
+.webpack/
+.build/
+coverage
+test_output
+.terraform

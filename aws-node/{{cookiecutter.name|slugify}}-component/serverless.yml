@@ -1,0 +1,35 @@
+service: ${env:NAME_PREFIX,''}api-extensions
+
+plugins:
+  - serverless-webpack
+  - serverless-offline
+
+provider:
+  name: aws
+  region: ${env:AWS_REGION,'eu-central-1'}
+  httpApi:
+    cors: true
+  logs:
+    httpApi: true
+  environment:
+    ORDER_PREFIX: ${env:ORDER_PREFIX,''}
+
+package:
+  # A package artifact will only be used during MACH deployment.
+  # If this environment variable is not set, it will assume a locally built one
+  artifact: ${env:PACKAGE_ARTIFACT,''}
+
+custom:
+  serverless-offline:
+    noPrependStageInUrl: true
+  webpack:
+    webpackConfig: 'webpack.config.ts'
+    packager: 'yarn'
+    includeModules: true
+
+functions:
+  service:
+    # src: ./src/
+    handler: src/index.handler
+    events:
+      - httpApi: '*'

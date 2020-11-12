@@ -24,7 +24,6 @@ components:
   version: <git hash of version you want to release>
 ```
 
-{% if cookiecutter.function_app %}
 # Installation
 
 Create a virtualenv and install the dev dependencies.
@@ -75,4 +74,3 @@ Or retrieve it from Azure:
 The function can be run locally by running
 
 `func start --python`
-{% endif %}

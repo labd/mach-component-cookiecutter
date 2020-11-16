@@ -4,7 +4,11 @@ module "lambda_function" {
   function_name = "${var.site}-api-extensions"
   description   = "API Extensions"
   handler       = "index.handler"
+  {% if cookiecutter.language == "node" -%}
   runtime       = "nodejs12.x"
+  {% elif cookiecutter.language == "python" -%}
+  runtime       = "python3.8"
+  {%- endif %}
   memory_size   = 512
   timeout       = 10
 

@@ -55,7 +55,7 @@ locals {
     # Note: WEBSITE_RUN_FROM_ZIP is needed for consumption plan, but for app service plan this may need to be WEBSITE_RUN_FROM_PACKAGE instead.
     WEBSITE_RUN_FROM_ZIP           = "https://${data.azurerm_storage_account.shared.name}.blob.core.windows.net/${data.azurerm_storage_container.code.name}/${local.package_name}${data.azurerm_storage_account_blob_container_sas.code_access.sas}"
     APPINSIGHTS_INSTRUMENTATIONKEY = azurerm_application_insights.insights.instrumentation_key
-    FUNCTIONS_WORKER_RUNTIME       = "python"
+    FUNCTIONS_WORKER_RUNTIME       = "{{ cookiecutter.language }}"
   }
 
   # Secrets, have to manually build these urls to ensure the latest version is in the functionapp and not the initial value.
@@ -79,7 +79,11 @@ resource "azurerm_function_app" "{{ cookiecutter.component_identifier }}" {
   https_only                 = true
 
   site_config {
+    {% if cookiecutter.language == "node" -%}
+    linux_fx_version = "NODE|10.15"
+    {% elif cookiecutter.language == "python" -%}
     linux_fx_version = "PYTHON|3.8"
+    {%- endif %}
 
     cors {
       allowed_origins = ["*"]

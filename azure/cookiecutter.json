@@ -1,5 +1,6 @@
 {
     "name": "example",
+    "language": "python",
     "description": "{{ cookiecutter.name|replace('-', ' ')|replace('_', ' ')|title }} component",
     "short_name": "{{ cookiecutter.name|replace('-', '')|replace('_', '') }}",
     "component_identifier": "{{ cookiecutter.name|slugify(separator='_') }}_component",

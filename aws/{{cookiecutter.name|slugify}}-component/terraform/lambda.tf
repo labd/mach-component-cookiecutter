@@ -23,7 +23,9 @@ module "lambda_function" {
       CT_CLIENT_SECRET            = commercetools_api_client.main.secret
       RELEASE                     = "v@${var.component_version}"
       ENVIRONMENT                 = var.environment
+      {% if cookiecutter.sentry_project -%}
       SENTRY_DSN                  = var.sentry_dsn
+      {%- endif %}
     }
   )
 

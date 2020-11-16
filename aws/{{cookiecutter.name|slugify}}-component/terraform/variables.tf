@@ -43,7 +43,9 @@ variable "environment_variables" {
   description = "Explicit map of variables that should be put in this function's environment variables."
 }
 
+{% if cookiecutter.sentry_project -%}
 variable "sentry_dsn" {
   type    = string
   default = ""
 }
+{%- endif %}

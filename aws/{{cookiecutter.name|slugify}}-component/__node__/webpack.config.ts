@@ -42,6 +42,7 @@ const config: Configuration = {
   },
   plugins: [
     new ForkTsCheckerWebpackPlugin(),
+    {% if cookiecutter.sentry_project -%}
     process.env.SENTRY_AUTH_TOKEN &&
       process.env.RELEASE &&
       new SentryWebpackPlugin({
@@ -55,6 +56,7 @@ const config: Configuration = {
         stripCommonPrefix: true,
         urlPrefix: 'app:///',
       }),
+    {%- endif %}
     new DefinePlugin({
       'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV),
     }),

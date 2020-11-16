@@ -4,6 +4,9 @@ import shutil
 
 PROJECT_DIRECTORY = os.path.realpath(os.path.curdir)
 MANIFEST = os.path.join(PROJECT_DIRECTORY, "MANIFEST")
+SUPPORTED_LANGUAGES = [
+    "python", "node"
+]
 
 def delete_resource(resource):
     if os.path.isfile(resource):
@@ -68,6 +71,11 @@ for directory in directories:
     else:
         for dir_ in unpack(directory):
             use_resources(os.path.join(PROJECT_DIRECTORY, dir_))
+
+# Cleanup all language-specific sub dirs here, so we don't have to define all the excludes
+# in the MANIFEST files
+for lang in SUPPORTED_LANGUAGES:
+    delete_resource(os.path.join(PROJECT_DIRECTORY, f"__{lang}__"))
 
 print("cleanup complete, removing manifest...")
 delete_resource(MANIFEST)

@@ -27,6 +27,7 @@
     "@types/locale": "0.1.0",
     "@types/node-fetch": "2.5.7",
     "@types/serverless": "1.78.7",
+    "@types/webpack-node-externals": "2.5.0",
     "babel-loader": "8.1.0",
     "cache-loader": "4.1.0",
     "eslint": "7.12.1",

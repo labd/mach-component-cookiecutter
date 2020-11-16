@@ -2,14 +2,15 @@ import path from 'path'
 import slsw from 'serverless-webpack'
 import ForkTsCheckerWebpackPlugin from 'fork-ts-checker-webpack-plugin'
 import SentryWebpackPlugin from '@sentry/webpack-plugin'
-// eslint-disable-next-line
 import { Configuration, DefinePlugin, WebpackPluginInstance } from 'webpack'
+import nodeExternals from 'webpack-node-externals'
 
 const config: Configuration = {
   mode: slsw.lib.webpack.isLocal ? 'development' : 'production',
   entry: {
     index: './src/index.ts',
   },
+  externals: [nodeExternals()],
   devtool: slsw.lib.webpack.isLocal ? 'eval-cheap-module-source-map' : 'source-map',
   resolve: {
     extensions: ['.js', '.jsx', '.json', '.ts', '.tsx'],

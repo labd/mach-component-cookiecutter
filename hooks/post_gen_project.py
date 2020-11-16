@@ -10,18 +10,14 @@ SUPPORTED_LANGUAGES = [
 
 def delete_resource(resource):
     if os.path.isfile(resource):
-        print(f"removing file: {resource}")
         os.remove(resource)
     elif os.path.isdir(resource):
-        print(f"removing directory: {resource}")
         shutil.rmtree(resource)
 
 
 def use_resources(directory: str):
     if not os.path.isdir(directory):
         raise ValueError(f"{directory} is not a directory")
-
-    print(f"use resources from {directory}")
 
     target_dir = os.path.dirname(directory)
 
@@ -77,5 +73,4 @@ for directory in directories:
 for lang in SUPPORTED_LANGUAGES:
     delete_resource(os.path.join(PROJECT_DIRECTORY, f"__{lang}__"))
 
-print("cleanup complete, removing manifest...")
 delete_resource(MANIFEST)

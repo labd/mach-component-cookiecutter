@@ -1,5 +1,5 @@
 def test_generate(cookies):
-    result = cookies.bake(template="aws-node")
+    result = cookies.bake(template="azure")
 
     assert result.exit_code == 0
     assert result.exception is None

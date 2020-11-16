@@ -1,4 +1,5 @@
 {
+  "language": "node",
   "name": "example",
   "description": "{{ cookiecutter.name|replace('-', ' ')|replace('_', ' ')|title }} component",
   "short_name": "{{ cookiecutter.name|replace('-', '')|replace('_', '') }}",

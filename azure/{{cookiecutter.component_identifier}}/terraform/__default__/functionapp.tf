@@ -48,7 +48,7 @@ locals {
     CTP_SCOPES                 = join(",", local.ct_scopes)
     CTP_API_URL                = var.variables["CT_API_URL"]
     CTP_AUTH_URL               = var.variables["CT_AUTH_URL"]
-    CTP_CLIENT_ID              = commercetools_api_client.{{ cookiecutter.component_identifier }}.id
+    CTP_CLIENT_ID              = commercetools_api_client.main.id
 
 
     # Azure deployment
@@ -59,14 +59,14 @@ locals {
   }
 
   # Secrets, have to manually build these urls to ensure the latest version is in the functionapp and not the initial value.
-  secret_variables = { for k, v in azurerm_key_vault_secret.secrets : replace(k, "-", "_") => "@Microsoft.KeyVault(SecretUri=${azurerm_key_vault.{{ cookiecutter.component_identifier }}.vault_uri}secrets/${v.name}/${v.version})" }
+  secret_variables = { for k, v in azurerm_key_vault_secret.secrets : replace(k, "-", "_") => "@Microsoft.KeyVault(SecretUri=${azurerm_key_vault.main.vault_uri}secrets/${v.name}/${v.version})" }
 
   extra_secrets = {
-    CTP_CLIENT_SECRET = "@Microsoft.KeyVault(SecretUri=${azurerm_key_vault.{{ cookiecutter.component_identifier }}.vault_uri}secrets/${azurerm_key_vault_secret.ct_client_secret.name}/${azurerm_key_vault_secret.ct_client_secret.version})"
+    CTP_CLIENT_SECRET = "@Microsoft.KeyVault(SecretUri=${azurerm_key_vault.main.vault_uri}secrets/${azurerm_key_vault_secret.ct_client_secret.name}/${azurerm_key_vault_secret.ct_client_secret.version})"
   }
 }
 
-resource "azurerm_function_app" "{{ cookiecutter.component_identifier }}" {
+resource "azurerm_function_app" "main" {
   name                       = lower(format("%s-func-%s", var.name_prefix, var.short_name))
   location                   = var.resource_group_location
   resource_group_name        = var.resource_group_name

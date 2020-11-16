@@ -35,6 +35,6 @@ resource "commercetools_api_extension" "main" {
 }
 
 resource "commercetools_api_client" "main" {
-  name  = format("%s_{{ cookiecutter.name|replace('_', '-') }}", var.site)
+  name  = format("%s_{{ cookiecutter.name|slugify }}", var.name_prefix)
   scope = local.ct_scopes
 }

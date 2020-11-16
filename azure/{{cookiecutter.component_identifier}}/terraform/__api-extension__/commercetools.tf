@@ -4,16 +4,16 @@ locals {
   ], var.ct_project_key)
 }
 
-resource "commercetools_api_client" "{{ cookiecutter.component_identifier }}" {
-  name  = format("%s_{{ cookiecutter.component_identifier }}", var.name_prefix)
+resource "commercetools_api_client" "main" {
+  name  = format("%s_{{ cookiecutter.name|slugify }}", var.name_prefix)
   scope = local.ct_scopes
 }
 
 # Get the functions keys out of the app
 resource "azurerm_template_deployment" "function_keys" {
-  name = "${azurerm_function_app.{{ cookiecutter.component_identifier }}.name}-function-keys"
+  name = "${azurerm_function_app.main.name}-function-keys"
   parameters = {
-    "functionApp" = azurerm_function_app.{{ cookiecutter.component_identifier }}.name
+    "functionApp" = azurerm_function_app.main.name
   }
   resource_group_name = var.resource_group_name
   deployment_mode     = "Incremental"
@@ -48,7 +48,7 @@ resource "commercetools_api_extension" "order_actions" {
 
   destination = {
     type                 = "http"
-    url                  = "https://${azurerm_function_app.{{ cookiecutter.component_identifier }}.name}.azurewebsites.net/{{ cookiecutter.function_name }}"
+    url                  = "https://${azurerm_function_app.main.name}.azurewebsites.net/{{ cookiecutter.function_name }}"
     azure_authentication = local.function_app_key
   }
 
@@ -58,6 +58,6 @@ resource "commercetools_api_extension" "order_actions" {
   }
 
   depends_on = [
-    azurerm_function_app.{{ cookiecutter.component_identifier }}
+    azurerm_function_app.main
   ]
 }

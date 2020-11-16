@@ -17,3 +17,11 @@ $ yarn start
 {%- endif %}
 
 And you're ready to go.
+
+## Testing
+
+{% if cookiecutter.language == "node" -%}
+```bash
+$ yarn test
+```
+{%- endif %}

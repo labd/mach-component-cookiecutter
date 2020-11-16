@@ -19,8 +19,8 @@ def test_generate(cookies, template, language):
         template=template, extra_context={"language": language, "name": "unit-test"}
     )
 
-    assert result.exit_code == 0
     assert result.exception is None
+    assert result.exit_code == 0
     assert result.project.basename == "unit-test-component"
     assert result.project.isdir()
 

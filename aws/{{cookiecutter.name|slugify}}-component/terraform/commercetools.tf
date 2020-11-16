@@ -14,7 +14,7 @@ resource "aws_lambda_permission" "ct_api_extension" {
 }
 
 resource "commercetools_api_extension" "main" {
-  key = "api-extensions"
+  key = "{{ cookiecutter.name|replace('_', '-') }}"
 
   destination = {
     type          = "AWSLambda"
@@ -35,6 +35,6 @@ resource "commercetools_api_extension" "main" {
 }
 
 resource "commercetools_api_client" "main" {
-  name  = format("%s_api-extensions", var.site)
+  name  = format("%s_{{ cookiecutter.name|replace('_', '-') }}", var.site)
   scope = local.ct_scopes
 }

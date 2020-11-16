@@ -1,4 +1,4 @@
-service: ${env:NAME_PREFIX,''}api-extensions
+service: ${env:NAME_PREFIX,''}{{ cookiecutter.name|replace('_', '-') }}
 
 plugins:
   - serverless-webpack

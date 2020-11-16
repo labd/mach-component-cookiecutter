@@ -1,8 +1,8 @@
 module "lambda_function" {
   source = "terraform-aws-modules/lambda/aws"
 
-  function_name = "${var.site}-api-extensions"
-  description   = "API Extensions"
+  function_name = "${var.site}-{{cookiecutter.name}}"
+  description   = "{{ cookiecutter.description }}"
   handler       = "index.handler"
   {% if cookiecutter.language == "node" -%}
   runtime       = "nodejs12.x"

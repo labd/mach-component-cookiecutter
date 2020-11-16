@@ -1,4 +1,6 @@
 pytest==6.1.2
+pytest-cov==2.8.1
 cookiecutter==1.7.2
 pytest-cookies==0.5.1
 black==20.8b1
+tox==3.20.1

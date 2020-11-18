@@ -15,6 +15,6 @@ def test_lambda(cookies, language, linux_fx_version):
     assert os.path.exists(lambda_path)
 
     result = load_hcl(lambda_path)
-    lambda_config = result.resource.azurerm_function_app.main2
+    lambda_config = result.resource.azurerm_function_app.main
     assert result.locals.environment_variables["FUNCTIONS_WORKER_RUNTIME"] == language
     lambda_config.site_config.linux_fx_version == linux_fx_version

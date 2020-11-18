@@ -1,5 +1,5 @@
 __{{ cookiecutter.language }}__
 
 terraform/__default__
-{% if cookiecutter.function_template != "none" %}terraform/__{{ cookiecutter.function_template }}__{% endif %}
+terraform/__{{ cookiecutter.function_template }}__
 !terraform/__*

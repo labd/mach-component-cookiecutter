@@ -1,5 +1,6 @@
 import pytest
 import os
+from tests import utils
 
 
 def list_files(path, *, root=""):
@@ -33,3 +34,29 @@ def test_generate(cookies, template, language):
 
     if language != "node":
         assert "tsconfig.json" not in files
+
+
+@pytest.mark.parametrize("template", ["azure", "aws"])
+@pytest.mark.parametrize(
+    "function_template", ("api-extension", "subscription", "public-api")
+)
+def test_terraform_stack(cookies, template, function_template):
+    result = cookies.bake(
+        template=template,
+        extra_context={"function_template": function_template, "name": "unit-test"},
+    )
+    assert result.exit_code == 0
+    assert result.project.isdir()
+
+    tf_dir = os.path.join(result.project, "terraform")
+    files = os.listdir(tf_dir)
+
+    tf_stack = utils.combine_files(
+        [os.path.join(tf_dir, file) for file in files if file.endswith(".tf")]
+    )
+
+    # utils.write_file(f"terraform_stack_{template}_{function_template}.tf", tf_stack)
+    expected = utils.get_file_content(
+        f"terraform_stack_{template}_{function_template}.tf"
+    )
+    assert tf_stack == expected

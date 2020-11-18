@@ -5,7 +5,7 @@
     "short_name": "{{ cookiecutter.name|replace('-', '')|replace('_', '') }}",
     "component_identifier": "{{ cookiecutter.name|slugify }}-component",
     "function_name": "{{ cookiecutter.name|slugify(separator='_') }}",
-    "function_template": ["none", "api-extension", "public-api"],
+    "function_template": ["api-extension", "subscription", "public-api"],
     "shared_resource_group": "",
     "function_storage_account": "",
     "function_container_name": "code"

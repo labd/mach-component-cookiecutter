@@ -8,3 +8,9 @@ integration:
 
 format:
 	black tests
+
+clean:
+	find . -name '*.pyc' -delete
+	find . -name '__pycache__' -delete
+	find . -name '*.egg-info' | xargs rm -rf
+	find . -name '.DS_Store' -delete

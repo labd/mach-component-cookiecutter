@@ -1,5 +1,9 @@
 import hcl2
-from typing import Any
+import io
+import fileinput
+import json
+import os
+from typing import Any, Union, List, Dict
 
 
 class HclWrapper:
@@ -42,6 +46,39 @@ class HclWrapper:
         return value
 
 
-def load_hcl(path: str):
+def combine_files(files: List[str]) -> str:
+    hcl_input = io.StringIO()
+    for file in files:
+        with open(file) as f:
+            hcl_input.writelines(f.readlines())
+            hcl_input.write("\n")
+    hcl_input.seek(0)
+    return hcl_input.getvalue()
+
+
+def load_hcl(path: str) -> Dict:
     with open(path) as f:
         return HclWrapper(hcl2.load(f))
+
+
+def get_file(name):
+    """Return the absolute path to a test file."""
+    return os.path.join(os.path.dirname(__file__), "files", name)
+
+
+def get_file_content(name):
+    with open(get_file(name)) as f:
+        return f.read()
+
+
+def get_json(name):
+    return json.loads(get_file_content(name))
+
+
+def write_file(name: str, content: str):
+    with open(get_file(name), "w") as f:
+        f.write(content)
+
+
+def write_json(name: str, content: dict):
+    write_file(name, json.dumps(content, indent=2))

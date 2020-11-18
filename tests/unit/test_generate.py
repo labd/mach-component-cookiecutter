@@ -58,11 +58,8 @@ def test_terraform_stack(cookies, template, function_template):
     )
     assert tf_stack == expected
 
+
 def _list_tf(dir_):
     files = os.listdir(dir_)
 
-    return sorted([
-        os.path.join(dir_, file)
-        for file in files
-        if file.endswith(".tf")
-    ])
+    return sorted([os.path.join(dir_, file) for file in files if file.endswith(".tf")])

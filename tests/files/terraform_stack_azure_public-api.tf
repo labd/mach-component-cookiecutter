@@ -119,6 +119,7 @@ resource "commercetools_api_client" "main" {
   name  = format("%s_unit-test", var.name_prefix)
   scope = local.ct_scopes
 }
+
 data "azurerm_storage_account" "shared" {
   name                = ""
   resource_group_name = ""

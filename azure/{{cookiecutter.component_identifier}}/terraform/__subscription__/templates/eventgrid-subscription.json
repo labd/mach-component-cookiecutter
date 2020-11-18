@@ -1,0 +1,67 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2018-05-01/deploymentTemplate.json",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "subscriptionName": {
+      "type": "string"
+    },
+    "location": {
+      "type": "string"
+    },
+    "eventGridTopicName": {
+      "type": "string"
+    },
+    "resourceGroupName": {
+      "type": "string"
+    },
+    "subscriptionId": {
+      "type": "string"
+    },
+    "webhookUrl": {
+      "type": "string"
+    },
+    "maxDeliveryAttempts": {
+      "type": "string"
+    },
+    "dlqContainerName": {
+      "type": "string"
+    },
+    "dlqStorageAccountName": {
+      "type": "string"
+    }
+  },
+  "variables": {
+     "storageResourceId": "[resourceId('Microsoft.Storage/storageAccounts', parameters('dlqStorageAccountName'))]"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.EventGrid/topics/providers/eventSubscriptions",
+      "apiVersion": "2018-01-01",
+      "name": "[concat(parameters('eventGridTopicName'), '/Microsoft.EventGrid/', parameters('subscriptionName'))]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "destination": {
+          "endpointType": "WebHook",
+          "properties": {
+            "endpointUrl": "[parameters('webhookUrl')]"
+          }
+        },
+        "filter": {
+          "includedEventTypes": [
+            "All"
+          ]
+        },
+        "retryPolicy": {
+          "maxDeliveryAttempts": "[parameters('maxDeliveryAttempts')]"
+        },
+        "deadLetterDestination": {
+          "endpointType": "StorageBlob",
+          "properties": {
+            "blobContainerName": "[parameters('dlqContainerName')]",
+            "resourceId": "[variables('storageResourceId')]"
+          }
+        }
+      }
+    }
+  ]
+}

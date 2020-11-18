@@ -154,7 +154,7 @@ locals {
   function_app_key = lookup(azurerm_template_deployment.function_keys.outputs, "functionkey")
 }
 
-resource "commercetools_api_extension" "order_actions" {
+resource "commercetools_api_extension" "main" {
   key = "create-order"
 
   destination = {

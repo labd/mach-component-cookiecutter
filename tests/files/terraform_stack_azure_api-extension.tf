@@ -1,88 +1,3 @@
-output "app_service_name" {
-  value       = azurerm_function_app.main.name
-  description = "Function app name"
-}
-
-output "app_service_url" {
-  value       = azurerm_function_app.main.default_hostname
-  description = "Function app service url"
-}
-
-locals {
-  storage_type     = var.environment == "production" ? "ZRS" : "LRS"
-}
-
-terraform {
-  required_providers {
-    commercetools = {
-      source = "labd/commercetools"
-    }
-  }
-}
-locals {
-  ct_scopes = formatlist("%s:%s", [
-    "manage_orders",
-  ], var.ct_project_key)
-}
-
-resource "commercetools_api_client" "main" {
-  name  = format("%s_unit-test", var.name_prefix)
-  scope = local.ct_scopes
-}
-
-# Get the functions keys out of the app
-resource "azurerm_template_deployment" "function_keys" {
-  name = "${azurerm_function_app.main.name}-function-keys"
-  parameters = {
-    "functionApp" = azurerm_function_app.main.name
-  }
-  resource_group_name = var.resource_group_name
-  deployment_mode     = "Incremental"
-
-  template_body = <<BODY
-  {
-      "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
-      "contentVersion": "1.0.0.0",
-      "parameters": {
-          "functionApp": {"type": "string", "defaultValue": ""}
-      },
-      "variables": {
-          "functionAppId": "[resourceId('Microsoft.Web/sites', parameters('functionApp'))]"
-      },
-      "resources": [
-      ],
-      "outputs": {
-          "functionkey": {
-              "type": "string",
-              "value": "[listkeys(concat(variables('functionAppId'), '/host/default'), '2018-11-01').functionKeys.default]"                                                                                }
-      }
-  }
-  BODY
-}
-
-locals {
-  function_app_key = lookup(azurerm_template_deployment.function_keys.outputs, "functionkey")
-}
-
-resource "commercetools_api_extension" "order_actions" {
-  key = "create-order"
-
-  destination = {
-    type                 = "http"
-    url                  = "https://${azurerm_function_app.main.name}.azurewebsites.net/unit_test"
-    azure_authentication = local.function_app_key
-  }
-
-  trigger {
-    resource_type_id = "order"
-    actions          = ["Create"]
-  }
-
-  depends_on = [
-    azurerm_function_app.main
-  ]
-}
-
 # errors, duration triggers, dead letter queues?
 resource "azurerm_application_insights" "insights" {
   name                 = lower(format("%s-appi-%s", var.name_prefix, var.short_name))
@@ -194,156 +109,70 @@ resource "azurerm_monitor_metric_alert" "ping" {
   depends_on = [azurerm_function_app.main]
 }
 
-resource "azurerm_key_vault" "main" {
-  name                        = replace(format("%s-kv-%s", var.name_prefix, var.short_name), "-", "")
-  location                    = var.resource_group_location
-  resource_group_name         = var.resource_group_name
-  enabled_for_disk_encryption = true
-  tenant_id                   = var.tenant_id
-  sku_name                    = "standard"
-
-  tags = var.tags
+locals {
+  ct_scopes = formatlist("%s:%s", [
+    "manage_orders",
+  ], var.ct_project_key)
 }
 
+resource "commercetools_api_client" "main" {
+  name  = format("%s_unit-test", var.name_prefix)
+  scope = local.ct_scopes
+}
 
-resource "azurerm_key_vault_access_policy" "service_access" {
-  for_each = var.service_object_ids
+# Get the functions keys out of the app
+resource "azurerm_template_deployment" "function_keys" {
+  name = "${azurerm_function_app.main.name}-function-keys"
+  parameters = {
+    "functionApp" = azurerm_function_app.main.name
+  }
+  resource_group_name = var.resource_group_name
+  deployment_mode     = "Incremental"
 
-  key_vault_id = azurerm_key_vault.main.id
+  template_body = <<BODY
+  {
+      "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+      "contentVersion": "1.0.0.0",
+      "parameters": {
+          "functionApp": {"type": "string", "defaultValue": ""}
+      },
+      "variables": {
+          "functionAppId": "[resourceId('Microsoft.Web/sites', parameters('functionApp'))]"
+      },
+      "resources": [
+      ],
+      "outputs": {
+          "functionkey": {
+              "type": "string",
+              "value": "[listkeys(concat(variables('functionAppId'), '/host/default'), '2018-11-01').functionKeys.default]"                                                                                }
+      }
+  }
+  BODY
+}
 
-  tenant_id = var.tenant_id
-  object_id = each.value
+locals {
+  function_app_key = lookup(azurerm_template_deployment.function_keys.outputs, "functionkey")
+}
 
-  secret_permissions = [
-    "get",
-    "list",
-    "set",
-    "delete"
+resource "commercetools_api_extension" "order_actions" {
+  key = "create-order"
+
+  destination = {
+    type                 = "http"
+    url                  = "https://${azurerm_function_app.main.name}.azurewebsites.net/unit_test"
+    azure_authentication = local.function_app_key
+  }
+
+  trigger {
+    resource_type_id = "order"
+    actions          = ["Create"]
+  }
+
+  depends_on = [
+    azurerm_function_app.main
   ]
 }
 
-resource "azurerm_key_vault_access_policy" "function_app" {
-  key_vault_id = azurerm_key_vault.main.id
-
-  tenant_id = var.tenant_id
-  object_id = azurerm_function_app.main.identity.0.principal_id
-
-  secret_permissions = [
-    "get",
-    "list",
-    "set",
-    "delete"
-  ]
-}
-
-resource "azurerm_key_vault_secret" "secrets" {
-  for_each = var.secrets
-
-  name         = replace(each.key, "_", "-")
-  value        = each.value
-  key_vault_id = azurerm_key_vault.main.id
-  tags         = var.tags
-}
-
-
-resource "azurerm_key_vault_secret" "ct_client_secret" {
-  name         = "ct-client-secret"
-  value        = commercetools_api_client.main.secret
-  key_vault_id = azurerm_key_vault.main.id
-  tags         = var.tags
-}
-
-# azure stuff
-variable "short_name" {
-  type        = string
-  description = "Short name passed by Mull. Will not be more than 10 characters"
-}
-
-variable "name_prefix" {
-  type = string
-}
-
-variable "subscription_id" {
-  type = string
-}
-
-variable "tenant_id" {
-  type = string
-}
-
-variable "service_object_ids" {
-  type        = map(string)
-  default     = {}
-  description = "Map of object ids that should have access to the keyvaults. (f.e. jenkins + developers)"
-}
-
-variable "region" {
-  type        = string
-  default     = ""
-  description = "Region: Azure region"
-}
-
-variable "resource_group_name" {
-  type = string
-}
-
-variable "resource_group_location" {
-  type = string
-}
-
-variable "app_service_plan_id" {
-  type = string
-}
-
-variable "monitor_action_group_id" {
-  type        = string
-  description = "Azure Monitor action group to send alerts to."
-  default     = ""
-}
-
-variable "tags" {
-  type        = map(string)
-  default     = {}
-  description = "Additional tags (e.g. `map('BusinessUnit','XYZ')`"
-}
-
-# function app specific
-variable "component_version" {
-  type        = string
-  description = "Version to deploy"
-}
-
-variable "environment" {
-  type        = string
-  description = "Specify what environment it's in (e.g. `test` or `production`)"
-}
-
-variable "site" {
-  type        = string
-  description = "Identifier of the site."
-}
-
-variable "ct_project_key" {
-  type = string
-  default = ""
-}
-
-variable "variables" {
-  type        = map(string)
-  description = "Generic way to pass variables to components. Some of these can also be used as environment variables."
-}
-
-variable "secrets" {
-  type        = map(string)
-  description = "Map of secret values. Will be put in the key vault."
-  default     = {}
-}
-
-variable "environment_variables" {
-  type        = map(string)
-  default     = {}
-  description = "Explicit map of variables that should be put in this function's environment variables."
-}
 data "azurerm_storage_account" "shared" {
   name                = ""
   resource_group_name = ""
@@ -469,6 +298,86 @@ resource "azurerm_function_app" "main" {
 
   depends_on = [data.external.package_exists]
 }
+resource "azurerm_key_vault" "main" {
+  name                        = replace(format("%s-kv-%s", var.name_prefix, var.short_name), "-", "")
+  location                    = var.resource_group_location
+  resource_group_name         = var.resource_group_name
+  enabled_for_disk_encryption = true
+  tenant_id                   = var.tenant_id
+  sku_name                    = "standard"
+
+  tags = var.tags
+}
+
+
+resource "azurerm_key_vault_access_policy" "service_access" {
+  for_each = var.service_object_ids
+
+  key_vault_id = azurerm_key_vault.main.id
+
+  tenant_id = var.tenant_id
+  object_id = each.value
+
+  secret_permissions = [
+    "get",
+    "list",
+    "set",
+    "delete"
+  ]
+}
+
+resource "azurerm_key_vault_access_policy" "function_app" {
+  key_vault_id = azurerm_key_vault.main.id
+
+  tenant_id = var.tenant_id
+  object_id = azurerm_function_app.main.identity.0.principal_id
+
+  secret_permissions = [
+    "get",
+    "list",
+    "set",
+    "delete"
+  ]
+}
+
+resource "azurerm_key_vault_secret" "secrets" {
+  for_each = var.secrets
+
+  name         = replace(each.key, "_", "-")
+  value        = each.value
+  key_vault_id = azurerm_key_vault.main.id
+  tags         = var.tags
+}
+
+
+resource "azurerm_key_vault_secret" "ct_client_secret" {
+  name         = "ct-client-secret"
+  value        = commercetools_api_client.main.secret
+  key_vault_id = azurerm_key_vault.main.id
+  tags         = var.tags
+}
+
+locals {
+  storage_type     = var.environment == "production" ? "ZRS" : "LRS"
+}
+
+terraform {
+  required_providers {
+    commercetools = {
+      source = "labd/commercetools"
+    }
+  }
+}
+output "app_service_name" {
+  value       = azurerm_function_app.main.name
+  description = "Function app name"
+}
+
+output "app_service_url" {
+  value       = azurerm_function_app.main.default_hostname
+  description = "Function app service url"
+}
+
 resource "azurerm_storage_account" "main" {
   name                     = replace(lower(format("%s-sa-%s", var.name_prefix, var.short_name)), "-", "")
   location                 = var.resource_group_location
@@ -480,3 +389,94 @@ resource "azurerm_storage_account" "main" {
   tags = var.tags
 }
 
+# azure stuff
+variable "short_name" {
+  type        = string
+  description = "Short name passed by Mull. Will not be more than 10 characters"
+}
+
+variable "name_prefix" {
+  type = string
+}
+
+variable "subscription_id" {
+  type = string
+}
+
+variable "tenant_id" {
+  type = string
+}
+
+variable "service_object_ids" {
+  type        = map(string)
+  default     = {}
+  description = "Map of object ids that should have access to the keyvaults. (f.e. jenkins + developers)"
+}
+
+variable "region" {
+  type        = string
+  default     = ""
+  description = "Region: Azure region"
+}
+
+variable "resource_group_name" {
+  type = string
+}
+
+variable "resource_group_location" {
+  type = string
+}
+
+variable "app_service_plan_id" {
+  type = string
+}
+
+variable "monitor_action_group_id" {
+  type        = string
+  description = "Azure Monitor action group to send alerts to."
+  default     = ""
+}
+
+variable "tags" {
+  type        = map(string)
+  default     = {}
+  description = "Additional tags (e.g. `map('BusinessUnit','XYZ')`"
+}
+
+# function app specific
+variable "component_version" {
+  type        = string
+  description = "Version to deploy"
+}
+
+variable "environment" {
+  type        = string
+  description = "Specify what environment it's in (e.g. `test` or `production`)"
+}
+
+variable "site" {
+  type        = string
+  description = "Identifier of the site."
+}
+
+variable "ct_project_key" {
+  type = string
+  default = ""
+}
+
+variable "variables" {
+  type        = map(string)
+  description = "Generic way to pass variables to components. Some of these can also be used as environment variables."
+}
+
+variable "secrets" {
+  type        = map(string)
+  description = "Map of secret values. Will be put in the key vault."
+  default     = {}
+}
+
+variable "environment_variables" {
+  type        = map(string)
+  default     = {}
+  description = "Explicit map of variables that should be put in this function's environment variables."
+}

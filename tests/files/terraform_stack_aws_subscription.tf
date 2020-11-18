@@ -1,22 +1,3 @@
-output "component_version" {
-  value = var.component_version
-}
-locals {
-  ct_scopes = formatlist("%s:%s", [
-    "manage_orders",
-    "view_orders",
-  ], var.ct_project_key)
-  lambda_s3_repository = "mach-lambda-repository"
-  lambda_s3_key        = "unit-test-${var.component_version}.zip"
-}
-terraform {
-  required_providers {
-    commercetools = {
-      source = "labd/commercetools"
-    }
-  }
-}
-
 resource "aws_iam_user" "ct_api_extensions" {
   name = "ct-api-extension-user"
 }
@@ -57,52 +38,6 @@ resource "commercetools_api_client" "main" {
   name  = format("%s_unit-test", var.name_prefix)
   scope = local.ct_scopes
 }
-
-# function app specific
-variable "component_version" {
-  type        = string
-  description = "Version to deploy"
-}
-
-variable "environment" {
-  type        = string
-  description = "Specify what environment it's in (e.g. `test` or `production`)"
-}
-
-variable "site" {
-  type        = string
-  description = "Identifier of the site."
-}
-
-variable "ct_project_key" {
-  type = string
-}
-
-variable "ct_api_url" {
-  type    = string
-  default = ""
-}
-
-variable "ct_auth_url" {
-  type    = string
-  default = ""
-}
-
-variable "variables" {
-  type        = map(string)
-  description = "Generic way to pass variables to components. Some of these can also be used as environment variables."
-}
-
-variable "secrets" {
-  type        = map(string)
-  description = "Map of secret values. Will be put in the key vault."
-}
-
-variable "environment_variables" {
-  type        = map(string)
-  description = "Explicit map of variables that should be put in this function's environment variables."
-}
-
 
 module "lambda_function" {
   source = "terraform-aws-modules/lambda/aws"
@@ -162,4 +97,69 @@ data "aws_iam_policy_document" "lambda_policy" {
   }
 
 }
+
+locals {
+  ct_scopes = formatlist("%s:%s", [
+    "manage_orders",
+    "view_orders",
+  ], var.ct_project_key)
+  lambda_s3_repository = "mach-lambda-repository"
+  lambda_s3_key        = "unit-test-${var.component_version}.zip"
+}
+terraform {
+  required_providers {
+    commercetools = {
+      source = "labd/commercetools"
+    }
+  }
+}
+
+output "component_version" {
+  value = var.component_version
+}
+# function app specific
+variable "component_version" {
+  type        = string
+  description = "Version to deploy"
+}
+
+variable "environment" {
+  type        = string
+  description = "Specify what environment it's in (e.g. `test` or `production`)"
+}
+
+variable "site" {
+  type        = string
+  description = "Identifier of the site."
+}
+
+variable "ct_project_key" {
+  type = string
+}
+
+variable "ct_api_url" {
+  type    = string
+  default = ""
+}
+
+variable "ct_auth_url" {
+  type    = string
+  default = ""
+}
+
+variable "variables" {
+  type        = map(string)
+  description = "Generic way to pass variables to components. Some of these can also be used as environment variables."
+}
+
+variable "secrets" {
+  type        = map(string)
+  description = "Map of secret values. Will be put in the key vault."
+}
+
+variable "environment_variables" {
+  type        = map(string)
+  description = "Explicit map of variables that should be put in this function's environment variables."
+}
+
 

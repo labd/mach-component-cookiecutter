@@ -48,15 +48,21 @@ def test_terraform_stack(cookies, template, function_template):
     assert result.exit_code == 0
     assert result.project.isdir()
 
-    tf_dir = os.path.join(result.project, "terraform")
-    files = os.listdir(tf_dir)
+    files = _list_tf(os.path.join(result.project, "terraform"))
 
-    tf_stack = utils.combine_files(
-        [os.path.join(tf_dir, file) for file in files if file.endswith(".tf")]
-    )
+    tf_stack = utils.combine_files(files)
 
     # utils.write_file(f"terraform_stack_{template}_{function_template}.tf", tf_stack)
     expected = utils.get_file_content(
         f"terraform_stack_{template}_{function_template}.tf"
     )
     assert tf_stack == expected
+
+def _list_tf(dir_):
+    files = os.listdir(dir_)
+
+    return sorted([
+        os.path.join(dir_, file)
+        for file in files
+        if file.endswith(".tf")
+    ])

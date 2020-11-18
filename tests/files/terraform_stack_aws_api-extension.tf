@@ -38,6 +38,7 @@ resource "commercetools_api_extension" "main" {
     aws_iam_access_key.ct_api_extensions,
   ]
 }
+
 module "lambda_function" {
   source = "terraform-aws-modules/lambda/aws"
 
@@ -82,8 +83,6 @@ module "lambda_function" {
 
 }
 
-
-
 data "aws_iam_policy_document" "lambda_policy" {
   statement {
     actions = [
@@ -105,6 +104,7 @@ locals {
   lambda_s3_repository = "mach-lambda-repository"
   lambda_s3_key        = "unit-test-${var.component_version}.zip"
 }
+
 terraform {
   required_providers {
     commercetools = {
@@ -116,6 +116,7 @@ terraform {
 output "component_version" {
   value = var.component_version
 }
+
 # function app specific
 variable "component_version" {
   type        = string
@@ -160,5 +161,6 @@ variable "environment_variables" {
   type        = map(string)
   description = "Explicit map of variables that should be put in this function's environment variables."
 }
+
 
 

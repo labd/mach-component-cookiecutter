@@ -19,10 +19,15 @@ def test_run_azure_python(project, monkeypatch):
         monkeypatch.setenv(k, v)
 
     subprocess.run(["make", "install"], cwd=cwd, check=True, stdout=subprocess.PIPE)
-    result = subprocess.run(["pytest", "tests", "--tb=no"], cwd=cwd, stdout=subprocess.PIPE)
-    assert result.returncode == 0, "\n".join([
-        line for line in result.stdout.decode().splitlines()
-        if line.startswith("FAILED")]
+    result = subprocess.run(
+        ["pytest", "tests", "--tb=no"], cwd=cwd, stdout=subprocess.PIPE
+    )
+    assert result.returncode == 0, "\n".join(
+        [
+            line
+            for line in result.stdout.decode().splitlines()
+            if line.startswith("FAILED")
+        ]
     )
 
 

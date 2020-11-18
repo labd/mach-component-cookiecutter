@@ -5,3 +5,6 @@ unit:
 
 integration:
 	pytest tests/integration
+
+format:
+	black tests

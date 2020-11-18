@@ -10,6 +10,7 @@ class ProjectGenerator:
         assert result.exit_code == 0
         return result.project
 
+
 @pytest.fixture
 def project(cookies):
     return ProjectGenerator(cookies)

@@ -1,5 +1,5 @@
 __{{ cookiecutter.language }}__
 
 terraform/__default__
-terraform/__{{ cookiecutter.function_template }}__
+{% if cookiecutter.function_template == "subscription" %}terraform/__subscription__{% endif %}
 !terraform/__*

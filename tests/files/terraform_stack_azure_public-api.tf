@@ -187,35 +187,6 @@ locals {
   }
 }
 
-resource "azurerm_function_app" "main2" {
-  name                       = lower(format("%s-func-%s", var.name_prefix, var.short_name))
-  location                   = var.resource_group_location
-  resource_group_name        = var.resource_group_name
-  app_service_plan_id        = var.app_service_plan_id
-  storage_account_name       = azurerm_storage_account.main.name
-  storage_account_access_key = azurerm_storage_account.main.primary_access_key
-  app_settings               = merge(var.environment_variables, local.environment_variables, local.secret_variables, local.extra_secrets)
-  os_type                    = "linux"
-  version                    = "~3"
-  https_only                 = true
-
-  site_config {
-    linux_fx_version = "PYTHON|3.8"
-
-    cors {
-      allowed_origins = ["*"]
-    }
-  }
-
-  identity {
-    type = "SystemAssigned"
-  }
-
-  tags = var.tags
-
-  depends_on = [data.external.package_exists]
-}
-
 resource "azurerm_function_app" "main" {
   name                       = lower(format("%s-func-%s", var.name_prefix, var.short_name))
   location                   = var.resource_group_location

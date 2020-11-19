@@ -30,6 +30,7 @@ module "lambda_function" {
       RELEASE                     = "v@${var.component_version}"
       ENVIRONMENT                 = var.environment
       
+      
     }
   )
 

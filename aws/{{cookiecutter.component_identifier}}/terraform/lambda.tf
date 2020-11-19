@@ -30,6 +30,9 @@ module "lambda_function" {
       {% if cookiecutter.sentry_project -%}
       SENTRY_DSN                  = var.sentry_dsn
       {%- endif %}
+      {% if cookiecutter.use_secrets|int -%}
+      CUSTOM_SECRET_NAME          = aws_secretsmanager_secret.custom_secret.name
+      {%- endif %}
     }
   )
 

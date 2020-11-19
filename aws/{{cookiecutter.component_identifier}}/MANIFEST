@@ -1,1 +1,2 @@
 __{{ cookiecutter.language }}__
+{% if not cookiecutter.use_secrets|int %}!terraform/secretsmanager.tf{% endif %}

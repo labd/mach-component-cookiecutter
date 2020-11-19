@@ -21,9 +21,9 @@ install:
 	pip install -r requirements_dev.txt
 
 pack:
-	# note this function is currently undocumented in core tools (will be added some day)
+	mkdir -p build
 	func pack --build-native-deps --python
-	mv $(BASENAME).zip $(ARTIFACT_NAME)
+	mv $(BASENAME).zip build/$(ARTIFACT_NAME)
 
 upload:
 	./azure-upload.sh $(ARTIFACT_NAME)
@@ -69,16 +69,3 @@ isort:
 
 flake8:
 	flake8
-
-#
-# Docker
-#
-docker-check:
-	@rm -rf reports || true
-	mkdir reports
-	docker rm -f $(NAME) || true
-	docker build --tag $(NAME) .
-	docker run -e FUNCTIONS_CORE_TOOLS_TELEMETRY_OPTOUT=1 -e TX_TOKEN=${TX_TOKEN} -e GIT_VERSION=$(VERSION) --name=$(NAME) $(NAME) make coverage
-	docker rm -f $(NAME)
-
-docker-package: docker-check pack

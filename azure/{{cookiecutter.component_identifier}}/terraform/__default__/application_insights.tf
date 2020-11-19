@@ -63,6 +63,8 @@ resource "azurerm_application_insights_web_test" "ping" {
     "emea-ru-msa-edge",
   ]
 
+  tags = var.tags
+
   configuration = <<XML
 <WebTest Name="PingTest" Enabled="True" Timeout="0" Proxy="default" StopOnError="False" RecordedResultFile="">
   <Items>
@@ -91,9 +93,9 @@ resource "azurerm_monitor_metric_alert" "ping" {
     threshold        = 1000
   }
 
-      for_each = var.monitor_action_group_id == "" ? [] : [1]
-      content {
-    action {
+  dynamic "action" {
+    for_each = var.monitor_action_group_id == "" ? [] : [1]
+    content {
       action_group_id = var.monitor_action_group_id
 
       # data sent with the webhook

@@ -47,6 +47,10 @@ resource "azurerm_key_vault_secret" "secrets" {
   value        = each.value
   key_vault_id = azurerm_key_vault.main.id
   tags         = var.tags
+
+  depends_on = [
+    azurerm_key_vault_access_policy.service_access,
+  ]
 }
 
 
@@ -55,4 +59,8 @@ resource "azurerm_key_vault_secret" "ct_client_secret" {
   value        = commercetools_api_client.main.secret
   key_vault_id = azurerm_key_vault.main.id
   tags         = var.tags
+
+  depends_on = [
+    azurerm_key_vault_access_policy.service_access,
+  ]
 }

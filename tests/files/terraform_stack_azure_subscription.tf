@@ -63,6 +63,8 @@ resource "azurerm_application_insights_web_test" "ping" {
     "emea-ru-msa-edge",
   ]
 
+  tags = var.tags
+
   configuration = <<XML
 <WebTest Name="PingTest" Enabled="True" Timeout="0" Proxy="default" StopOnError="False" RecordedResultFile="">
   <Items>
@@ -91,9 +93,9 @@ resource "azurerm_monitor_metric_alert" "ping" {
     threshold        = 1000
   }
 
-      for_each = var.monitor_action_group_id == "" ? [] : [1]
-      content {
-    action {
+  dynamic "action" {
+    for_each = var.monitor_action_group_id == "" ? [] : [1]
+    content {
       action_group_id = var.monitor_action_group_id
 
       # data sent with the webhook
@@ -107,12 +109,6 @@ resource "azurerm_monitor_metric_alert" "ping" {
 
   # this custom metric is only created after the function app is created...
   depends_on = [azurerm_function_app.main]
-}
-
-locals {
-  ct_scopes = formatlist("%s:%s", [
-    "manage_orders",
-  ], var.ct_project_key)
 }
 
 resource "commercetools_api_client" "main" {
@@ -243,10 +239,10 @@ locals {
     ENVIRONMENT        = var.environment
     
     # Commercetools
-    CTP_PROJECT_KEY            = var.variables["CT_PROJECT_KEY"]
+    CTP_PROJECT_KEY            = var.ct_project_key
     CTP_SCOPES                 = join(",", local.ct_scopes)
-    CTP_API_URL                = var.variables["CT_API_URL"]
-    CTP_AUTH_URL               = var.variables["CT_AUTH_URL"]
+    CTP_API_URL                = var.ct_api_url
+    CTP_AUTH_URL               = var.ct_auth_url
     CTP_CLIENT_ID              = commercetools_api_client.main.id
 
 
@@ -342,6 +338,10 @@ resource "azurerm_key_vault_secret" "secrets" {
   value        = each.value
   key_vault_id = azurerm_key_vault.main.id
   tags         = var.tags
+
+  depends_on = [
+    azurerm_key_vault_access_policy.service_access,
+  ]
 }
 
 
@@ -350,10 +350,18 @@ resource "azurerm_key_vault_secret" "ct_client_secret" {
   value        = commercetools_api_client.main.secret
   key_vault_id = azurerm_key_vault.main.id
   tags         = var.tags
+
+  depends_on = [
+    azurerm_key_vault_access_policy.service_access,
+  ]
 }
 
 locals {
   storage_type     = var.environment == "production" ? "ZRS" : "LRS"
+  ct_scopes = formatlist("%s:%s", [
+    "manage_orders",
+		"view_orders",
+  ], var.ct_project_key)
 }
 
 terraform {
@@ -456,6 +464,15 @@ variable "site" {
 
 variable "ct_project_key" {
   type = string
+}
+
+variable "ct_api_url" {
+  type    = string
+  default = ""
+}
+
+variable "ct_auth_url" {
+  type    = string
   default = ""
 }
 

@@ -1,0 +1,9 @@
+[run]
+omit =
+    tests/*
+    
+[html]
+directory = reports/covhtml
+
+[xml]
+output = reports/coverage.xml

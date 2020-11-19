@@ -70,6 +70,15 @@ variable "site" {
 
 variable "ct_project_key" {
   type = string
+}
+
+variable "ct_api_url" {
+  type    = string
+  default = ""
+}
+
+variable "ct_auth_url" {
+  type    = string
   default = ""
 }
 

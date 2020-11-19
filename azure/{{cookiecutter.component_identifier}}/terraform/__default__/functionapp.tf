@@ -44,10 +44,10 @@ locals {
     ENVIRONMENT        = var.environment
     
     # Commercetools
-    CTP_PROJECT_KEY            = var.variables["CT_PROJECT_KEY"]
+    CTP_PROJECT_KEY            = var.ct_project_key
     CTP_SCOPES                 = join(",", local.ct_scopes)
-    CTP_API_URL                = var.variables["CT_API_URL"]
-    CTP_AUTH_URL               = var.variables["CT_AUTH_URL"]
+    CTP_API_URL                = var.ct_api_url
+    CTP_AUTH_URL               = var.ct_auth_url
     CTP_CLIENT_ID              = commercetools_api_client.main.id
 
 

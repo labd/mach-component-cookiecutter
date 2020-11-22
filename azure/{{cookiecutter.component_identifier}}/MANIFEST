@@ -1,5 +1,5 @@
 __{{ cookiecutter.language }}__
 
 terraform/__default__
-{% if cookiecutter.function_template == "subscription" %}terraform/__subscription__{% endif %}
+{% if cookiecutter.use_commercetools_subscription|int -%}terraform/__subscription__{% endif %}
 !terraform/__*

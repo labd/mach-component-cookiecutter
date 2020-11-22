@@ -116,6 +116,8 @@ resource "commercetools_api_client" "main" {
   scope = local.ct_scopes
 }
 
+# Start commercetools API extension
+
 # Get the functions keys out of the app
 resource "azurerm_template_deployment" "function_keys" {
   name = "${azurerm_function_app.main.name}-function-keys"
@@ -168,7 +170,7 @@ resource "commercetools_api_extension" "main" {
     azurerm_function_app.main
   ]
 }
-
+# End commercetools API extension
 data "azurerm_storage_account" "shared" {
   name                = ""
   resource_group_name = ""

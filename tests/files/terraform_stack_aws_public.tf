@@ -3,6 +3,7 @@ resource "commercetools_api_client" "main" {
   scope = local.ct_scopes
 }
 
+
 module "lambda_function" {
   source = "terraform-aws-modules/lambda/aws"
 
@@ -45,7 +46,6 @@ module "lambda_function" {
 
   attach_policy_json = true
   policy_json        = data.aws_iam_policy_document.lambda_policy.json
-
 }
 
 data "aws_iam_policy_document" "lambda_policy" {
@@ -59,6 +59,7 @@ data "aws_iam_policy_document" "lambda_policy" {
     ]
   }
 
+  
 }
 
 locals {
@@ -78,6 +79,7 @@ terraform {
   }
 }
 
+data "aws_region" "current" {}
 output "component_version" {
   value = var.component_version
 }

@@ -1,2 +1,3 @@
 __{{ cookiecutter.language }}__
+{% if not cookiecutter.use_commercetools_subscription|int -%}!terraform/sqs.tf{% endif %}
 {% if not cookiecutter.use_secrets|int %}!terraform/secretsmanager.tf{% endif %}

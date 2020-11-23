@@ -3,6 +3,62 @@ resource "commercetools_api_client" "main" {
   scope = local.ct_scopes
 }
 
+# Start commercetools API extension
+resource "aws_iam_user" "ct_subscription" {
+  name = "ct-unit-test-user"
+}
+
+resource "aws_iam_access_key" "ct_subscription" {
+  user = aws_iam_user.ct_subscription.name
+}
+
+resource "aws_iam_user_policy" "order_created_policy" {
+  name = "ct-unit-test-created"
+  user = aws_iam_user.ct_subscription.name
+
+  policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Action": [
+        "SQS:SendMessage"
+      ],
+      "Effect": "Allow",
+      "Resource": "${aws_sqs_queue.ct_order_created_queue.arn}"
+    }
+  ]
+}
+EOF
+} 
+
+resource "commercetools_subscription" "order_created" {
+  key = "unit-test_order_created"
+
+  destination = {
+    type          = "SQS"
+    queue_url     = aws_sqs_queue.ct_order_created_queue.id
+    access_key    = aws_iam_access_key.ct_subscription.id
+    access_secret = aws_iam_access_key.ct_subscription.secret
+    region        = data.aws_region.current.name
+  }
+
+  changes {
+    resource_type_ids = ["order"]
+  }
+
+  message {
+    resource_type_id = "order"
+    types            = ["OrderCreated"]
+  }
+
+  depends_on = [
+    aws_iam_user.ct_subscription_user,
+    aws_iam_access_key.ct_subscription,
+    aws_sqs_queue.ct_order_created_queue,
+    aws_iam_user_policy.order_created_policy,
+  ]
+}
 module "lambda_function" {
   source = "terraform-aws-modules/lambda/aws"
 
@@ -45,7 +101,6 @@ module "lambda_function" {
 
   attach_policy_json = true
   policy_json        = data.aws_iam_policy_document.lambda_policy.json
-
 }
 
 data "aws_iam_policy_document" "lambda_policy" {
@@ -59,6 +114,21 @@ data "aws_iam_policy_document" "lambda_policy" {
     ]
   }
 
+  statement {
+    sid       = "AllowSQSPermissions"
+    effect    = "Allow"
+    resources = [aws_sqs_queue.ct_order_created_queue.arn]
+    actions = [
+      "sqs:ChangeMessageVisibility",
+      "sqs:DeleteMessage",
+      "sqs:GetQueueAttributes",
+      "sqs:GetQueueUrl",
+      "sqs:ReceiveMessage",
+      "sqs:SendMessage",
+      "sqs:SendMessageBatch",
+    ]
+  }
+  
 }
 
 locals {
@@ -78,8 +148,32 @@ terraform {
   }
 }
 
+data "aws_region" "current" {}
 output "component_version" {
   value = var.component_version
+}
+
+resource "aws_sqs_queue" "ct_order_created_queue" {
+  name                      = "unit-test-ct-order-created-queue"
+  receive_wait_time_seconds = 20
+  redrive_policy            = "{\"deadLetterTargetArn\":\"${aws_sqs_queue.ct_order_created_deadletter_queue.arn}\",\"maxReceiveCount\":10}"
+
+  # should match lambda timeout
+  visibility_timeout_seconds = 600
+}
+
+resource "aws_sqs_queue" "ct_order_created_deadletter_queue" {
+  name                      = "unit-test-ct-order-created-deadletter-queue"
+  receive_wait_time_seconds = 20
+}
+
+resource "aws_lambda_event_source_mapping" "sqs_lambda_event_mapping_ct_order_created" {
+  batch_size       = 1
+  event_source_arn = aws_sqs_queue.ct_order_created_queue.arn
+  enabled          = true
+  function_name    = module.lambda_function.this_lambda_function_arn
+
+  depends_on = [module.lambda_function]
 }
 
 # function app specific

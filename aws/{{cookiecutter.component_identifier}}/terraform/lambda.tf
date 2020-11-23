@@ -47,7 +47,6 @@ module "lambda_function" {
 
   attach_policy_json = true
   policy_json        = data.aws_iam_policy_document.lambda_policy.json
-
 }
 
 data "aws_iam_policy_document" "lambda_policy" {
@@ -61,4 +60,20 @@ data "aws_iam_policy_document" "lambda_policy" {
     ]
   }
 
+  {% if cookiecutter.use_commercetools_subscription|int -%}
+  statement {
+    sid       = "AllowSQSPermissions"
+    effect    = "Allow"
+    resources = [aws_sqs_queue.ct_order_created_queue.arn]
+    actions = [
+      "sqs:ChangeMessageVisibility",
+      "sqs:DeleteMessage",
+      "sqs:GetQueueAttributes",
+      "sqs:GetQueueUrl",
+      "sqs:ReceiveMessage",
+      "sqs:SendMessage",
+      "sqs:SendMessageBatch",
+    ]
+  }
+  {% endif %}
 }

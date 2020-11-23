@@ -4,7 +4,7 @@ resource "commercetools_api_client" "main" {
 }
 # Start commercetools API extension
 resource "aws_iam_user" "ct_api_extensions" {
-  name = "ct-api-extension-user"
+  name = "ct-unit-test-user"
 }
 
 resource "aws_iam_access_key" "ct_api_extensions" {
@@ -39,6 +39,7 @@ resource "commercetools_api_extension" "main" {
   ]
 }
 # End commercetools API extension
+
 module "lambda_function" {
   source = "terraform-aws-modules/lambda/aws"
 
@@ -81,7 +82,6 @@ module "lambda_function" {
 
   attach_policy_json = true
   policy_json        = data.aws_iam_policy_document.lambda_policy.json
-
 }
 
 data "aws_iam_policy_document" "lambda_policy" {
@@ -95,6 +95,7 @@ data "aws_iam_policy_document" "lambda_policy" {
     ]
   }
 
+  
 }
 
 locals {
@@ -114,6 +115,7 @@ terraform {
   }
 }
 
+data "aws_region" "current" {}
 output "component_version" {
   value = var.component_version
 }

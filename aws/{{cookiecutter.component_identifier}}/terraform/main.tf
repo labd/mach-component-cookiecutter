@@ -5,3 +5,5 @@ terraform {
     }
   }
 }
+
+data "aws_region" "current" {}

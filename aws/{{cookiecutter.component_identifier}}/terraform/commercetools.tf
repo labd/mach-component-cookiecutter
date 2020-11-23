@@ -2,7 +2,8 @@ resource "commercetools_api_client" "main" {
   name  = format("%s_{{ cookiecutter.name|slugify }}", var.name_prefix)
   scope = local.ct_scopes
 }
-{% if cookiecutter.function_template == "api-extension" %}
+{% if cookiecutter.use_commercetools_api_extension|int -%}
+# Start commercetools API extension
 resource "aws_iam_user" "ct_api_extensions" {
   name = "ct-api-extension-user"
 }
@@ -38,4 +39,5 @@ resource "commercetools_api_extension" "main" {
     aws_iam_access_key.ct_api_extensions,
   ]
 }
-{% endif %}
+# End commercetools API extension
+{%- endif %}

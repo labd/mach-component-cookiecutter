@@ -2,7 +2,7 @@ resource "commercetools_api_client" "main" {
   name  = format("%s_unit-test", var.name_prefix)
   scope = local.ct_scopes
 }
-
+# Start commercetools API extension
 resource "aws_iam_user" "ct_api_extensions" {
   name = "ct-api-extension-user"
 }
@@ -38,7 +38,7 @@ resource "commercetools_api_extension" "main" {
     aws_iam_access_key.ct_api_extensions,
   ]
 }
-
+# End commercetools API extension
 module "lambda_function" {
   source = "terraform-aws-modules/lambda/aws"
 

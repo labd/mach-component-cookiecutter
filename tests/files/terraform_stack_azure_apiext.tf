@@ -47,7 +47,6 @@ resource "azurerm_monitor_metric_alert" "exceptions" {
   depends_on = [azurerm_function_app.main]
 }
 
-
 resource "azurerm_application_insights_web_test" "ping" {
   name                    = lower(format("%s-appi-%s-ping", var.name_prefix, var.short_name))
   location                = var.resource_group_location
@@ -111,10 +110,14 @@ resource "azurerm_monitor_metric_alert" "ping" {
   depends_on = [azurerm_function_app.main]
 }
 
+
+
 resource "commercetools_api_client" "main" {
   name  = format("%s_unit-test", var.name_prefix)
   scope = local.ct_scopes
 }
+
+# Start commercetools API extension
 
 # Get the functions keys out of the app
 resource "azurerm_template_deployment" "function_keys" {
@@ -168,7 +171,7 @@ resource "commercetools_api_extension" "main" {
     azurerm_function_app.main
   ]
 }
-
+# End commercetools API extension
 data "azurerm_storage_account" "shared" {
   name                = ""
   resource_group_name = ""
@@ -263,7 +266,7 @@ resource "azurerm_function_app" "main" {
 
   tags = var.tags
 
-  depends_on = [data.external.package_exists]
+  depends_on = [data.external.package_exists, azurerm_key_vault_secret.secrets]
 }
 resource "azurerm_key_vault" "main" {
   name                        = replace(format("%s-kv-%s", var.name_prefix, var.short_name), "-", "")
@@ -279,9 +282,8 @@ resource "azurerm_key_vault" "main" {
 
 resource "azurerm_key_vault_access_policy" "service_access" {
   for_each = var.service_object_ids
-
+  
   key_vault_id = azurerm_key_vault.main.id
-
   tenant_id = var.tenant_id
   object_id = each.value
 
@@ -367,6 +369,7 @@ resource "azurerm_storage_account" "main" {
   
   tags = var.tags
 }
+
 
 # azure stuff
 variable "short_name" {

@@ -96,5 +96,5 @@ resource "azurerm_function_app" "main" {
 
   tags = var.tags
 
-  depends_on = [data.external.package_exists]
+  depends_on = [data.external.package_exists, azurerm_key_vault_secret.secrets]
 }

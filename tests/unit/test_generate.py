@@ -37,13 +37,24 @@ def test_generate(cookies, template, language):
 
 
 @pytest.mark.parametrize("template", ["azure", "aws"])
-@pytest.mark.parametrize(
-    "function_template", ("api-extension", "subscription", "public-api")
-)
-def test_terraform_stack(cookies, template, function_template):
+@pytest.mark.parametrize("use_public_api", (1, 0))
+@pytest.mark.parametrize("use_commercetools_api_extension", (1, 0))
+@pytest.mark.parametrize("use_commercetools_subscription", (1, 0))
+def test_terraform_stack(
+    cookies,
+    template,
+    use_public_api,
+    use_commercetools_api_extension,
+    use_commercetools_subscription,
+):
     result = cookies.bake(
         template=template,
-        extra_context={"function_template": function_template, "name": "unit-test"},
+        extra_context={
+            "use_public_api": use_public_api,
+            "use_commercetools_api_extension": use_commercetools_api_extension,
+            "use_commercetools_subscription": use_commercetools_subscription,
+            "name": "unit-test",
+        },
     )
     assert result.exit_code == 0
     assert result.project.isdir()
@@ -51,12 +62,32 @@ def test_terraform_stack(cookies, template, function_template):
     files = _list_tf(os.path.join(result.project, "terraform"))
 
     tf_stack = utils.combine_files(files)
-
-    # utils.write_file(f"terraform_stack_{template}_{function_template}.tf", tf_stack)
-    expected = utils.get_file_content(
-        f"terraform_stack_{template}_{function_template}.tf"
+    filename = _get_tf_filename(
+        template,
+        use_public_api,
+        use_commercetools_api_extension,
+        use_commercetools_subscription,
     )
+    # utils.write_file(filename, tf_stack)
+    expected = utils.get_file_content(filename)
     assert tf_stack == expected
+
+
+def _get_tf_filename(
+    template: str,
+    use_public_api: int,
+    use_commercetools_api_extension: int,
+    use_commercetools_subscription: int,
+) -> str:
+    parts = []
+    if use_public_api:
+        parts.append("public")
+    if use_commercetools_api_extension:
+        parts.append("apiext")
+    if use_commercetools_subscription:
+        parts.append("subscr")
+    ext = f"_{'_'.join(parts)}" if parts else ""
+    return f"terraform_stack_{template}{ext}.tf"
 
 
 def _list_tf(dir_):

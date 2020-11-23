@@ -2,7 +2,9 @@ resource "commercetools_api_client" "main" {
   name  = format("%s_{{ cookiecutter.name|slugify }}", var.name_prefix)
   scope = local.ct_scopes
 }
-{% if cookiecutter.function_template == "subscription" %}
+{% if cookiecutter.use_commercetools_subscription|int -%}
+
+# Start commercetools subscription
 resource "commercetools_subscription" "main" {
   key = format("%s_{{ cookiecutter.function_name|slugify }}_order_payed", var.name_prefix)
 
@@ -26,7 +28,11 @@ resource "commercetools_subscription" "main" {
     cloud_events_version = "1.0"
   }
 }
-{% elif cookiecutter.function_template == "api-extension" %}
+# End commercetools subscription
+{%- endif %}
+{% if cookiecutter.use_commercetools_api_extension|int -%}
+# Start commercetools API extension
+
 # Get the functions keys out of the app
 resource "azurerm_template_deployment" "function_keys" {
   name = "${azurerm_function_app.main.name}-function-keys"
@@ -79,4 +85,5 @@ resource "commercetools_api_extension" "main" {
     azurerm_function_app.main
   ]
 }
-{% endif -%}
+# End commercetools API extension
+{%- endif %}

@@ -12,9 +12,8 @@ resource "azurerm_key_vault" "main" {
 
 resource "azurerm_key_vault_access_policy" "service_access" {
   for_each = var.service_object_ids
-
+  
   key_vault_id = azurerm_key_vault.main.id
-
   tenant_id = var.tenant_id
   object_id = each.value
 

@@ -48,53 +48,33 @@ resource "azurerm_monitor_metric_alert" "exceptions" {
 }
 
 
-resource "azurerm_application_insights_web_test" "ping" {
-  name                    = lower(format("%s-appi-%s-ping", var.name_prefix, var.short_name))
-  location                = var.resource_group_location
-  resource_group_name     = var.resource_group_name
-  application_insights_id = azurerm_application_insights.insights.id
-  kind                    = "ping"
-  frequency               = 300
-  timeout                 = 60
-  enabled                 = true
-  geo_locations = [
-    "emea-nl-ams-azr",
-    "emea-se-sto-edge",
-    "emea-ru-msa-edge",
-  ]
 
-  tags = var.tags
-
-  configuration = <<XML
-<WebTest Name="PingTest" Enabled="True" Timeout="0" Proxy="default" StopOnError="False" RecordedResultFile="">
-  <Items>
-    <Request Method="GET" Version="1.1" Url="https://${azurerm_function_app.main.name}.azurewebsites.net/unit_test/healthchecks?code=${var.short_name}" ThinkTime="0" Timeout="300" ParseDependentRequests="True" FollowRedirects="True" RecordResult="True" Cache="False" ResponseTimeGoal="0" Encoding="utf-8" ExpectedHttpStatusCode="200" ExpectedResponseUrl="" ReportingName="" IgnoreHttpStatusCode="False" />
-  </Items>
-</WebTest>
-XML
-}
-
-
-resource "azurerm_monitor_metric_alert" "ping" {
-  name                = format("%s-ping-response", var.short_name)
+esource "azurerm_monitor_metric_alert" "topic_order_signals_dlq" {
+  name                = format("%s-topic-order-signals-dlq", var.short_name)
   resource_group_name = var.resource_group_name
-  scopes              = [azurerm_application_insights.insights.id]
-  description         = "Action will be triggered when ping response is too long"
+  scopes              = [data.azurerm_eventgrid_topic.ct_signals.id]
+  description         = "Action will be triggered when topic messages are deadlettered."
 
   frequency   = "PT5M"
   window_size = "PT5M"
-  severity    = 3
+  severity    = 2
 
   criteria {
-    metric_namespace = "microsoft.insights/components"
-    metric_name      = "availabilityresults/duration"
-    aggregation      = "Maximum"
-    operator         = "GreaterThan"
-    threshold        = 1000
+    metric_namespace = "Microsoft.EventGrid/topics"
+    metric_name      = "DeadLetteredCount"
+    aggregation      = "Total"
+    operator         = "GreaterThanOrEqual"
+    threshold        = 0.9
+    dimension {
+      name     = "DeadLetterReason"
+      operator = "Include"
+      values   = ["MaxDeliveryAttemptsExceeded"]
+    }
   }
 
   dynamic "action" {
     for_each = var.monitor_action_group_id == "" ? [] : [1]
+
     content {
       action_group_id = var.monitor_action_group_id
 
@@ -106,9 +86,41 @@ resource "azurerm_monitor_metric_alert" "ping" {
   }
 
   tags = var.tags
+}
 
-  # this custom metric is only created after the function app is created...
-  depends_on = [azurerm_function_app.main]
+# Double since the previous alert doesn't seem to work reliably, hopefully this will always work
+resource "azurerm_monitor_metric_alert" "dlq_files_exist" {
+  name                = format("%s-sa-dlq-files-exist", var.short_name)
+  resource_group_name = var.resource_group_name
+  scopes              = [format("%s/blobServices/default", azurerm_storage_account.dlq.id)]
+  description         = "Action will be triggered when DLQ files exist."
+
+  frequency   = "PT1M"
+  window_size = "PT1H"
+  severity    = 2
+
+  criteria {
+    metric_namespace = "Microsoft.Storage/storageAccounts/blobServices"
+    metric_name      = "BlobCount"
+    aggregation      = "Average"
+    operator         = "GreaterThan"
+    threshold        = 0.0
+  }
+
+  dynamic "action" {
+    for_each = var.monitor_action_group_id == "" ? [] : [1]
+
+    content {
+      action_group_id = var.monitor_action_group_id
+
+      # data sent with the webhook
+      webhook_properties = {
+        "component" : var.short_name
+      }
+    }
+  }
+
+  tags = var.tags
 }
 
 resource "commercetools_api_client" "main" {
@@ -140,61 +152,7 @@ resource "commercetools_subscription" "main" {
   }
 }
 # End commercetools subscription
-# Start commercetools API extension
 
-# Get the functions keys out of the app
-resource "azurerm_template_deployment" "function_keys" {
-  name = "${azurerm_function_app.main.name}-function-keys"
-  parameters = {
-    "functionApp" = azurerm_function_app.main.name
-  }
-  resource_group_name = var.resource_group_name
-  deployment_mode     = "Incremental"
-
-  template_body = <<BODY
-  {
-      "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
-      "contentVersion": "1.0.0.0",
-      "parameters": {
-          "functionApp": {"type": "string", "defaultValue": ""}
-      },
-      "variables": {
-          "functionAppId": "[resourceId('Microsoft.Web/sites', parameters('functionApp'))]"
-      },
-      "resources": [
-      ],
-      "outputs": {
-          "functionkey": {
-              "type": "string",
-              "value": "[listkeys(concat(variables('functionAppId'), '/host/default'), '2018-11-01').functionKeys.default]"                                                                                }
-      }
-  }
-  BODY
-}
-
-locals {
-  function_app_key = lookup(azurerm_template_deployment.function_keys.outputs, "functionkey")
-}
-
-resource "commercetools_api_extension" "main" {
-  key = "create-order"
-
-  destination = {
-    type                 = "http"
-    url                  = "https://${azurerm_function_app.main.name}.azurewebsites.net/unit_test"
-    azure_authentication = local.function_app_key
-  }
-
-  trigger {
-    resource_type_id = "order"
-    actions          = ["Create"]
-  }
-
-  depends_on = [
-    azurerm_function_app.main
-  ]
-}
-# End commercetools API extension
 locals {
   subscription_name     = format("%s-eg-%s-os-sub", var.name_prefix, var.short_name)
   event_grid_topic_name = format("%s-eg-%s-os-topic", var.name_prefix, var.short_name)
@@ -342,7 +300,7 @@ resource "azurerm_function_app" "main" {
 
   tags = var.tags
 
-  depends_on = [data.external.package_exists]
+  depends_on = [data.external.package_exists, azurerm_key_vault_secret.secrets]
 }
 resource "azurerm_key_vault" "main" {
   name                        = replace(format("%s-kv-%s", var.name_prefix, var.short_name), "-", "")
@@ -358,9 +316,8 @@ resource "azurerm_key_vault" "main" {
 
 resource "azurerm_key_vault_access_policy" "service_access" {
   for_each = var.service_object_ids
-
+  
   key_vault_id = azurerm_key_vault.main.id
-
   tenant_id = var.tenant_id
   object_id = each.value
 
@@ -445,6 +402,24 @@ resource "azurerm_storage_account" "main" {
   allow_blob_public_access = false
   
   tags = var.tags
+}
+
+resource "azurerm_storage_account" "dlq" {
+  name                     = replace(lower(format("%s-sa-%s-dlq", var.name_prefix, var.short_name)), "-", "")
+  location                 = var.resource_group_location
+  resource_group_name      = var.resource_group_name
+  account_tier             = "Standard"
+  account_replication_type = local.storage_type
+  allow_blob_public_access = false
+
+  tags = var.tags
+}
+
+
+resource "azurerm_storage_container" "container_dlq" {
+  name                  = "dlq"
+  storage_account_name  = azurerm_storage_account.dlq.name
+  container_access_type = "private"
 }
 
 # azure stuff

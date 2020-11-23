@@ -62,12 +62,32 @@ def test_terraform_stack(
     files = _list_tf(os.path.join(result.project, "terraform"))
 
     tf_stack = utils.combine_files(files)
-
-    # utils.write_file(f"terraform_stack_{template}_{use_public_api}_{use_commercetools_api_extension}_{use_commercetools_subscription}.tf", tf_stack)
-    expected = utils.get_file_content(
-        f"terraform_stack_{template}_{use_public_api}_{use_commercetools_api_extension}_{use_commercetools_subscription}.tf"
+    filename = _get_tf_filename(
+        template,
+        use_public_api,
+        use_commercetools_api_extension,
+        use_commercetools_subscription,
     )
+    # utils.write_file(filename, tf_stack)
+    expected = utils.get_file_content(filename)
     assert tf_stack == expected
+
+
+def _get_tf_filename(
+    template: str,
+    use_public_api: int,
+    use_commercetools_api_extension: int,
+    use_commercetools_subscription: int,
+) -> str:
+    parts = []
+    if use_public_api:
+        parts.append("public")
+    if use_commercetools_api_extension:
+        parts.append("apiext")
+    if use_commercetools_subscription:
+        parts.append("subscr")
+    ext = f"_{'_'.join(parts)}" if parts else ""
+    return f"terraform_stack_{template}{ext}.tf"
 
 
 def _list_tf(dir_):

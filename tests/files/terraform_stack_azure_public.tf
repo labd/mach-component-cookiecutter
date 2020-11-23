@@ -47,7 +47,6 @@ resource "azurerm_monitor_metric_alert" "exceptions" {
   depends_on = [azurerm_function_app.main]
 }
 
-
 resource "azurerm_application_insights_web_test" "ping" {
   name                    = lower(format("%s-appi-%s-ping", var.name_prefix, var.short_name))
   location                = var.resource_group_location
@@ -111,88 +110,13 @@ resource "azurerm_monitor_metric_alert" "ping" {
   depends_on = [azurerm_function_app.main]
 }
 
+
+
 resource "commercetools_api_client" "main" {
   name  = format("%s_unit-test", var.name_prefix)
   scope = local.ct_scopes
 }
-# Start commercetools subscription
-resource "commercetools_subscription" "main" {
-  key = format("%s_unit-test_order_payed", var.name_prefix)
 
-  destination = {
-    type       = "azure_eventgrid"
-    uri        = data.azurerm_eventgrid_topic.ct_signals.endpoint
-    access_key = data.azurerm_eventgrid_topic.ct_signals.primary_access_key
-  }
-
-  changes {
-    resource_type_ids = ["order"]
-  }
-
-  message {
-    resource_type_id = "order"
-    types            = ["OrderCreated", "OrderPaymentStateChanged"]
-  }
-
-  format = {
-    type                 = "cloud_events"
-    cloud_events_version = "1.0"
-  }
-}
-# End commercetools subscription
-
-locals {
-  subscription_name     = format("%s-eg-%s-os-sub", var.name_prefix, var.short_name)
-  event_grid_topic_name = format("%s-eg-%s-os-topic", var.name_prefix, var.short_name)
-}
-
-resource "azurerm_template_deployment" "ct_signals" {
-  name                = local.event_grid_topic_name
-  resource_group_name = var.resource_group_name
-  template_body       = file(format("%s/templates/eventgrid-topic.json", path.module))
-  deployment_mode     = "Incremental"
-
-  parameters = {
-    "eventGridTopicName" = local.event_grid_topic_name
-  }
-}
-
-data "azurerm_eventgrid_topic" "ct_signals" {
-  name                = local.event_grid_topic_name
-  resource_group_name = var.resource_group_name
-
-  depends_on = [
-    azurerm_template_deployment.ct_signals,
-  ]
-}
-
-data "azurerm_function_app_host_keys" "main" {
-  name                = azurerm_function_app.main.name
-  resource_group_name = var.resource_group_name
-
-  depends_on = [
-    azurerm_function_app.main
-  ]
-}
-
-resource "azurerm_template_deployment" "ct_signals_subscription" {
-  name                = local.subscription_name
-  resource_group_name = var.resource_group_name
-  template_body       = file(format("%s/templates/eventgrid-subscription.json", path.module))
-  deployment_mode     = "Incremental"
-
-  parameters = {
-    "subscriptionName"      = local.subscription_name
-    "eventGridTopicName"    = data.azurerm_eventgrid_topic.ct_signals.name
-    "resourceGroupName"     = var.resource_group_name
-    "subscriptionId"        = var.subscription_id
-    "location"              = var.resource_group_location
-    "webhookUrl"            = format("https://%s/%s?code=%s", azurerm_function_app.main.default_hostname, "ct_subscription", data.azurerm_function_app_host_keys.main.default_function_key)
-    "maxDeliveryAttempts"   = "10"
-    "dlqContainerName"      = azurerm_storage_container.container_dlq.name
-    "dlqStorageAccountName" = azurerm_storage_account.dlq.name
-  }
-}
 
 data "azurerm_storage_account" "shared" {
   name                = ""
@@ -288,7 +212,7 @@ resource "azurerm_function_app" "main" {
 
   tags = var.tags
 
-  depends_on = [data.external.package_exists]
+  depends_on = [data.external.package_exists, azurerm_key_vault_secret.secrets]
 }
 resource "azurerm_key_vault" "main" {
   name                        = replace(format("%s-kv-%s", var.name_prefix, var.short_name), "-", "")
@@ -304,9 +228,8 @@ resource "azurerm_key_vault" "main" {
 
 resource "azurerm_key_vault_access_policy" "service_access" {
   for_each = var.service_object_ids
-
+  
   key_vault_id = azurerm_key_vault.main.id
-
   tenant_id = var.tenant_id
   object_id = each.value
 
@@ -392,6 +315,7 @@ resource "azurerm_storage_account" "main" {
   
   tags = var.tags
 }
+
 
 # azure stuff
 variable "short_name" {

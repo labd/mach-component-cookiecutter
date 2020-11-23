@@ -48,151 +48,13 @@ resource "azurerm_monitor_metric_alert" "exceptions" {
 }
 
 
-resource "azurerm_application_insights_web_test" "ping" {
-  name                    = lower(format("%s-appi-%s-ping", var.name_prefix, var.short_name))
-  location                = var.resource_group_location
-  resource_group_name     = var.resource_group_name
-  application_insights_id = azurerm_application_insights.insights.id
-  kind                    = "ping"
-  frequency               = 300
-  timeout                 = 60
-  enabled                 = true
-  geo_locations = [
-    "emea-nl-ams-azr",
-    "emea-se-sto-edge",
-    "emea-ru-msa-edge",
-  ]
 
-  tags = var.tags
-
-  configuration = <<XML
-<WebTest Name="PingTest" Enabled="True" Timeout="0" Proxy="default" StopOnError="False" RecordedResultFile="">
-  <Items>
-    <Request Method="GET" Version="1.1" Url="https://${azurerm_function_app.main.name}.azurewebsites.net/unit_test/healthchecks?code=${var.short_name}" ThinkTime="0" Timeout="300" ParseDependentRequests="True" FollowRedirects="True" RecordResult="True" Cache="False" ResponseTimeGoal="0" Encoding="utf-8" ExpectedHttpStatusCode="200" ExpectedResponseUrl="" ReportingName="" IgnoreHttpStatusCode="False" />
-  </Items>
-</WebTest>
-XML
-}
-
-
-resource "azurerm_monitor_metric_alert" "ping" {
-  name                = format("%s-ping-response", var.short_name)
-  resource_group_name = var.resource_group_name
-  scopes              = [azurerm_application_insights.insights.id]
-  description         = "Action will be triggered when ping response is too long"
-
-  frequency   = "PT5M"
-  window_size = "PT5M"
-  severity    = 3
-
-  criteria {
-    metric_namespace = "microsoft.insights/components"
-    metric_name      = "availabilityresults/duration"
-    aggregation      = "Maximum"
-    operator         = "GreaterThan"
-    threshold        = 1000
-  }
-
-  dynamic "action" {
-    for_each = var.monitor_action_group_id == "" ? [] : [1]
-    content {
-      action_group_id = var.monitor_action_group_id
-
-      # data sent with the webhook
-      webhook_properties = {
-        "component" : var.short_name
-      }
-    }
-  }
-
-  tags = var.tags
-
-  # this custom metric is only created after the function app is created...
-  depends_on = [azurerm_function_app.main]
-}
 
 resource "commercetools_api_client" "main" {
   name  = format("%s_unit-test", var.name_prefix)
   scope = local.ct_scopes
 }
-# Start commercetools subscription
-resource "commercetools_subscription" "main" {
-  key = format("%s_unit-test_order_payed", var.name_prefix)
 
-  destination = {
-    type       = "azure_eventgrid"
-    uri        = data.azurerm_eventgrid_topic.ct_signals.endpoint
-    access_key = data.azurerm_eventgrid_topic.ct_signals.primary_access_key
-  }
-
-  changes {
-    resource_type_ids = ["order"]
-  }
-
-  message {
-    resource_type_id = "order"
-    types            = ["OrderCreated", "OrderPaymentStateChanged"]
-  }
-
-  format = {
-    type                 = "cloud_events"
-    cloud_events_version = "1.0"
-  }
-}
-# End commercetools subscription
-
-locals {
-  subscription_name     = format("%s-eg-%s-os-sub", var.name_prefix, var.short_name)
-  event_grid_topic_name = format("%s-eg-%s-os-topic", var.name_prefix, var.short_name)
-}
-
-resource "azurerm_template_deployment" "ct_signals" {
-  name                = local.event_grid_topic_name
-  resource_group_name = var.resource_group_name
-  template_body       = file(format("%s/templates/eventgrid-topic.json", path.module))
-  deployment_mode     = "Incremental"
-
-  parameters = {
-    "eventGridTopicName" = local.event_grid_topic_name
-  }
-}
-
-data "azurerm_eventgrid_topic" "ct_signals" {
-  name                = local.event_grid_topic_name
-  resource_group_name = var.resource_group_name
-
-  depends_on = [
-    azurerm_template_deployment.ct_signals,
-  ]
-}
-
-data "azurerm_function_app_host_keys" "main" {
-  name                = azurerm_function_app.main.name
-  resource_group_name = var.resource_group_name
-
-  depends_on = [
-    azurerm_function_app.main
-  ]
-}
-
-resource "azurerm_template_deployment" "ct_signals_subscription" {
-  name                = local.subscription_name
-  resource_group_name = var.resource_group_name
-  template_body       = file(format("%s/templates/eventgrid-subscription.json", path.module))
-  deployment_mode     = "Incremental"
-
-  parameters = {
-    "subscriptionName"      = local.subscription_name
-    "eventGridTopicName"    = data.azurerm_eventgrid_topic.ct_signals.name
-    "resourceGroupName"     = var.resource_group_name
-    "subscriptionId"        = var.subscription_id
-    "location"              = var.resource_group_location
-    "webhookUrl"            = format("https://%s/%s?code=%s", azurerm_function_app.main.default_hostname, "ct_subscription", data.azurerm_function_app_host_keys.main.default_function_key)
-    "maxDeliveryAttempts"   = "10"
-    "dlqContainerName"      = azurerm_storage_container.container_dlq.name
-    "dlqStorageAccountName" = azurerm_storage_account.dlq.name
-  }
-}
 
 data "azurerm_storage_account" "shared" {
   name                = ""
@@ -288,7 +150,7 @@ resource "azurerm_function_app" "main" {
 
   tags = var.tags
 
-  depends_on = [data.external.package_exists]
+  depends_on = [data.external.package_exists, azurerm_key_vault_secret.secrets]
 }
 resource "azurerm_key_vault" "main" {
   name                        = replace(format("%s-kv-%s", var.name_prefix, var.short_name), "-", "")
@@ -304,9 +166,8 @@ resource "azurerm_key_vault" "main" {
 
 resource "azurerm_key_vault_access_policy" "service_access" {
   for_each = var.service_object_ids
-
+  
   key_vault_id = azurerm_key_vault.main.id
-
   tenant_id = var.tenant_id
   object_id = each.value
 
@@ -392,6 +253,7 @@ resource "azurerm_storage_account" "main" {
   
   tags = var.tags
 }
+
 
 # azure stuff
 variable "short_name" {

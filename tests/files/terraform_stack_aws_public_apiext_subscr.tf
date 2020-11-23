@@ -137,8 +137,27 @@ module "lambda_function" {
 
   attach_policy_json = true
   policy_json        = data.aws_iam_policy_document.lambda_policy.json
+  allowed_triggers = {
+    APIGatewayAny = {
+      service = "apigateway"
+      arn     = var.api_gateway_execution_arn
+    }
+  }
+}
+resource "aws_apigatewayv2_integration" "gateway" {
+  api_id           = var.api_gateway
+  integration_type = "AWS_PROXY"
+
+  connection_type = "INTERNET"
+  description     = "GraphQL Gateway"
+  integration_uri = module.lambda_function.this_lambda_function_arn
 }
 
+resource "aws_apigatewayv2_route" "application" {
+  api_id    = var.api_gateway
+  route_key = "ANY /unit-test/{proxy+}"
+  target    = "integrations/${aws_apigatewayv2_integration.gateway.id}"
+}
 data "aws_iam_policy_document" "lambda_policy" {
   statement {
     actions = [
@@ -164,7 +183,6 @@ data "aws_iam_policy_document" "lambda_policy" {
       "sqs:SendMessageBatch",
     ]
   }
-  
 }
 
 locals {
@@ -258,4 +276,12 @@ variable "environment_variables" {
 }
 
 
+variable "api_gateway" {
+  type        = string
+  description = "API Gateway to publish in"
+}
 
+variable "api_gateway_execution_arn" {
+  type        = string
+  description = "API Gateway API Execution ARN"
+}

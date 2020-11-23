@@ -47,8 +47,32 @@ module "lambda_function" {
 
   attach_policy_json = true
   policy_json        = data.aws_iam_policy_document.lambda_policy.json
+  
+  {%- if cookiecutter.use_public_api|int %}
+  allowed_triggers = {
+    APIGatewayAny = {
+      service = "apigateway"
+      arn     = var.api_gateway_execution_arn
+    }
+  }
+  {%- endif %}
+}
+{% if cookiecutter.use_public_api|int -%}
+resource "aws_apigatewayv2_integration" "gateway" {
+  api_id           = var.api_gateway
+  integration_type = "AWS_PROXY"
+
+  connection_type = "INTERNET"
+  description     = "GraphQL Gateway"
+  integration_uri = module.lambda_function.this_lambda_function_arn
 }
 
+resource "aws_apigatewayv2_route" "application" {
+  api_id    = var.api_gateway
+  route_key = "ANY /{{ cookiecutter.name|slugify }}/{proxy+}"
+  target    = "integrations/${aws_apigatewayv2_integration.gateway.id}"
+}
+{%- endif %}
 data "aws_iam_policy_document" "lambda_policy" {
   statement {
     actions = [
@@ -75,5 +99,5 @@ data "aws_iam_policy_document" "lambda_policy" {
       "sqs:SendMessageBatch",
     ]
   }
-  {% endif %}
+  {%- endif %}
 }

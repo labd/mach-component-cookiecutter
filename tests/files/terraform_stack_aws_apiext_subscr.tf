@@ -164,7 +164,6 @@ data "aws_iam_policy_document" "lambda_policy" {
       "sqs:SendMessageBatch",
     ]
   }
-  
 }
 
 locals {

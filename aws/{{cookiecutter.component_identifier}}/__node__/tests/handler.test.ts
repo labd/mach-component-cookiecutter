@@ -1,10 +1,10 @@
 import { Cart } from '@commercetools/platform-sdk'
-import { inputHandler } from '../src/lib/handler'
+import { extensionHandler } from '../src/lib/handler'
 
-describe('inputHandler', () => {
+describe('extensionHandler', () => {
   test('Return a result for cart create events', async () => {
     expect(
-      inputHandler({ action: 'Create', resource: { id: '1', typeId: 'cart', obj: {} as Cart } })
+      extensionHandler({ action: 'Create', resource: { id: '1', typeId: 'cart', obj: {} as Cart } })
     ).resolves.toBeTruthy()
   })
 })

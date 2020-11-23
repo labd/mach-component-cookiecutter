@@ -5,7 +5,7 @@
  */
 import { init, Integrations, AWSLambda } from '@sentry/serverless'
 import { addExtensionMethods } from '@sentry/tracing'
-import { inputHandler } from './lib/handler'
+import { extensionHandler, subscriptionHandler } from './lib/handler'
 
 addExtensionMethods()
 
@@ -18,4 +18,10 @@ init({
   integrations: [new Integrations.Http({ tracing: true })],
 })
 
-export const handler = AWSLambda.wrapHandler(inputHandler)
+const handlerBase = async (input: any, context?: Context) => {
+  if (input.action) return await extensionHandler(input, context)
+  if (input.notificationType) return await subscriptionHandler(input, context)
+  throw new Error('Unsupport request')
+}
+
+export const handler = AWSLambda.wrapHandler(handlerBase)

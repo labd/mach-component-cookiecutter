@@ -1,5 +1,6 @@
 [run]
 omit =
+    .python_packages/*
     tests/*
     
 [html]

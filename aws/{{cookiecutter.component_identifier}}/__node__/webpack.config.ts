@@ -6,40 +6,23 @@ import { Configuration, DefinePlugin, WebpackPluginInstance } from 'webpack'
 import nodeExternals from 'webpack-node-externals'
 
 const config: Configuration = {
-  mode: slsw.lib.webpack.isLocal ? 'development' : 'production',
-  entry: {
-    index: './src/index.ts',
-  },
+ mode: serverlessWebpack.lib.webpack.isLocal ? 'development' : 'production',
+  entry: serverlessWebpack.lib.entries,
   externals: [nodeExternals()],
-  devtool: slsw.lib.webpack.isLocal ? 'eval-cheap-module-source-map' : 'source-map',
-  resolve: {
-    extensions: ['.js', '.jsx', '.json', '.ts', '.tsx'],
-    symlinks: false,
-    cacheWithContext: false,
-  },
-  output: {
-    libraryTarget: 'commonjs2',
-    path: path.join(__dirname, '.webpack'),
-    filename: '[name].js',
-  },
+  devtool: serverlessWebpack.lib.webpack.isLocal ? 'inline-cheap-module-source-map' : 'source-map',
   target: 'node',
+  node: false,
   module: {
     rules: [
       {
-        // Include ts, tsx, js, and jsx files.
-        test: /\.(ts|js)x?$/,
+        test: /\.ts$/,
+        use: 'ts-loader',
         exclude: /node_modules/,
-        use: [
-          {
-            loader: 'cache-loader',
-            options: {
-              cacheDirectory: path.resolve('.webpackCache'),
-            },
-          },
-          'babel-loader',
-        ],
       },
     ],
+  },
+  optimization: {
+    minimize: false,
   },
   plugins: [
     new ForkTsCheckerWebpackPlugin(),
@@ -63,5 +46,5 @@ const config: Configuration = {
     }),
   ].filter(Boolean) as WebpackPluginInstance[],
 }
-
 module.exports = config
+

@@ -1,7 +1,6 @@
 # {{ cookiecutter.name }} component
 
-MACH component
-
+{{ cookiecutter.description }}
 
 # Usage
 

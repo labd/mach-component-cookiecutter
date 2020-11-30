@@ -1,5 +1,5 @@
 resource "commercetools_api_client" "main" {
-  name  = format("%s_{{ cookiecutter.name|slugify }}", var.name_prefix)
+  name  = "{{ cookiecutter.name|slugify }}"
   scope = local.ct_scopes
 }
 {% if cookiecutter.use_commercetools_api_extension|int -%}

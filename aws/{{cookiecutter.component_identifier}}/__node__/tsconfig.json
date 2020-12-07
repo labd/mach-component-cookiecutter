@@ -19,10 +19,9 @@
     "sourceMap": true,
     "strict": true,
     "strictNullChecks": true,
-    "target": "ES2017"
+    "target": "ES2017",
+    "strictPropertyInitialization": false,
+    "typeRoots": ["./node_modules/@types", "./src/@types"]
   },
-    "include": [
-      "src",
-      "tests"
-    ]
+  "include": ["src"]
 }

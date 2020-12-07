@@ -3,6 +3,7 @@ service: ${env:NAME_PREFIX,''}{{ cookiecutter.name|replace('_', '-') }}
 plugins:
   - serverless-webpack
   - serverless-offline
+  - serverless-dotenv-plugin
 
 provider:
   name: aws
@@ -29,7 +30,8 @@ custom:
 
 functions:
   service:
-    # src: ./src/
-    handler: src/index.handler
+    handler: src/rest/handler.handler
     events:
-      - httpApi: '*'
+      - httpApi:
+          method: '*'
+          path: '/{proxy+}'

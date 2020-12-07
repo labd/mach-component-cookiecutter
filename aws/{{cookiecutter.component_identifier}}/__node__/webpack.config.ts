@@ -24,6 +24,10 @@ const config: Configuration = {
   optimization: {
     minimize: false,
   },
+  resolve: {
+    modules: [path.resolve('./src'), path.resolve('./node_modules')],
+    extensions: ['.ts', '.js'],
+  },
   plugins: [
     new ForkTsCheckerWebpackPlugin(),
     {% if cookiecutter.sentry_project -%}

@@ -17,7 +17,7 @@ const authMiddleware = createAuthMiddlewareForClientCredentialsFlow({
     clientId: process.env.CT_CLIENT_ID,
     clientSecret: process.env.CT_CLIENT_SECRET,
   },
-  scopes: process.env.CT_SCOPES.split(' '),
+  scopes: process.env.CT_SCOPES.split(','),
   fetch,
 })
 

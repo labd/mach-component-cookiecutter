@@ -6,7 +6,7 @@ export const healthCheckValidator = {
   output: {
     200: {
       body: {
-        ok: Joi.boolean().equal(true),
+        ok: Joi.boolean(),
         version: Joi.string(),
       },
     },

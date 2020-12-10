@@ -2,8 +2,7 @@ import AWS from 'aws-sdk'
 
 const client = new AWS.SecretsManager({
   region: process.env.AWS_REGION,
-  endpoint:
-    process.env.NODE_ENV !== 'production' ? new AWS.Endpoint('http://localhost:4566') : undefined,
+  endpoint: process.env.LOCALSTACK_URL ? new AWS.Endpoint(process.env.LOCALSTACK_URL) : undefined,
 })
 
 export const getSecret = async (secretName: string): Promise<string> => {

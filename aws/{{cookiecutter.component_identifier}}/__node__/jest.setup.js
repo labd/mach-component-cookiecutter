@@ -17,3 +17,5 @@ process.env.CT_CLIENT_SECRET = 'foo'
 process.env.CT_SCOPES = 'foo'
 process.env.CT_API_URL = 'https://localhost'
 process.env.CT_AUTH_URL = 'https://localhost'
+process.env.AWS_REGION = 'eu-central-1'
+process.env.COMPONENT_NAME = {{ cookiecutter.name|replace('_', '-') }}

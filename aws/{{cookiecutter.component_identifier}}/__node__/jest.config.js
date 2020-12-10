@@ -9,6 +9,9 @@ module.exports = {
   transform: {
     '^.+\\.(js|jsx|ts|tsx)$': 'babel-jest',
   },
-  testMatch: ['<rootDir>/**/tests/**/*.test.{ts,tsx,js}'],
+  testMatch: ['<rootDir>/**/*.test.{ts,tsx,js}'],
   modulePathIgnorePatterns: ['<rootDir>/node_modules', '<rootDir>/dist'],
+  restoreMocks: true,
+  clearMocks: true,
+  resetMocks: true,
 }

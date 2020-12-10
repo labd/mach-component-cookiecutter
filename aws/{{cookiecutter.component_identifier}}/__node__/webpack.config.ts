@@ -4,6 +4,7 @@ import ForkTsCheckerWebpackPlugin from 'fork-ts-checker-webpack-plugin'
 import SentryWebpackPlugin from '@sentry/webpack-plugin'
 import { Configuration, DefinePlugin, WebpackPluginInstance } from 'webpack'
 import nodeExternals from 'webpack-node-externals'
+import TsconfigPathsPlugin from 'tsconfig-paths-webpack-plugin'
 
 const config: Configuration = {
  mode: serverlessWebpack.lib.webpack.isLocal ? 'development' : 'production',
@@ -23,6 +24,10 @@ const config: Configuration = {
   },
   optimization: {
     minimize: false,
+  },
+  resolve: {
+    plugins: [new TsconfigPathsPlugin()],
+    extensions: ['.ts', '.js'],
   },
   plugins: [
     new ForkTsCheckerWebpackPlugin(),

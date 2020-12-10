@@ -1,12 +1,10 @@
 import bodyParser from 'koa-bodyparser'
 import Koa from 'koa'
-import winstonLogger from '../lib/logging'
 import router from './routes'
-import logger from './middleware/logger-middleware.ts'
+import logger from './middleware/logger-middleware'
 
 const app = new Koa()
-
-app.use(logger({ logger: winstonLogger }))
+app.use(logger())
 app.use(bodyParser())
 app.use(router.middleware())
 

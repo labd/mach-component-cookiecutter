@@ -1,15 +1,30 @@
 import { Integrations, AWSLambda } from '@sentry/serverless'
+import { RewriteFrames, Transaction } from '@sentry/integrations'
 import { addExtensionMethods } from '@sentry/tracing'
+import assert from 'assert'
 
 addExtensionMethods()
+
+assert(process.env.COMPONENT_NAME, 'COMPONENT_NAME missing')
+assert(process.env.SITE, 'SITE missing')
 
 AWSLambda.init({
   dsn: process.env.SENTRY_DSN,
   tracesSampleRate: 1.0,
-  enabled: process.env.NODE_ENV === 'production',
+  enabled: process.env.SENTRY_DSN ? true : false,
   environment: process.env.ENVIRONMENT,
   release: process.env.RELEASE,
-  integrations: [new Integrations.Http({ tracing: true })],
+  integrations: [
+    new Integrations.Console(),
+    new RewriteFrames(),
+    new Transaction(),
+    new Integrations.Http({ tracing: true }),
+  ],
 })
 
-export default AWSLambda
+AWSLambda.configureScope(function (scope) {
+  scope.setTag('service_name', process.env.COMPONENT_NAME)
+  scope.setTag('site', process.env.SITE)
+})
+
+export const Sentry = AWSLambda

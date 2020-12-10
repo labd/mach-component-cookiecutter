@@ -8,7 +8,7 @@ import { createHttpMiddleware } from '@commercetools/sdk-middleware-http'
 import fetch from 'node-fetch'
 import assert from 'assert'
 
-assert(process.env.CT_SCOPES)
+assert(process.env.CT_SCOPES, 'CT_SCOPES missing')
 
 const authMiddleware = createAuthMiddlewareForClientCredentialsFlow({
   host: process.env.CT_AUTH_URL,

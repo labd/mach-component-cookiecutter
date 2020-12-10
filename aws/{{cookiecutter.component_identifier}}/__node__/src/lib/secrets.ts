@@ -1,5 +1,4 @@
 import AWS from 'aws-sdk'
-import logger from 'lib/logging'
 
 const client = new AWS.SecretsManager({
   region: process.env.AWS_REGION,
@@ -11,7 +10,7 @@ export const getSecret = async (secretName: string): Promise<string> => {
   return new Promise((resolve, reject) => {
     client.getSecretValue({ SecretId: secretName }, (err, data) => {
       if (err) {
-        logger.error(err)
+        console.error(err)
         return reject(err)
       }
 

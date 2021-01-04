@@ -1,10 +1,8 @@
-import path from 'path'
-import slsw from 'serverless-webpack'
-import ForkTsCheckerWebpackPlugin from 'fork-ts-checker-webpack-plugin'
-import SentryWebpackPlugin from '@sentry/webpack-plugin'
-import { Configuration, DefinePlugin, WebpackPluginInstance } from 'webpack'
-import nodeExternals from 'webpack-node-externals'
-import TsconfigPathsPlugin from 'tsconfig-paths-webpack-plugin'
+import ForkTsCheckerWebpackPlugin from 'fork-ts-checker-webpack-plugin';
+import nodeExternals from 'webpack-node-externals';
+import serverlessWebpack from 'serverless-webpack';
+import TsconfigPathsPlugin from 'tsconfig-paths-webpack-plugin';
+import { Configuration, DefinePlugin, WebpackPluginInstance } from 'webpack';
 
 const config: Configuration = {
  mode: serverlessWebpack.lib.webpack.isLocal ? 'development' : 'production',
@@ -31,21 +29,7 @@ const config: Configuration = {
   },
   plugins: [
     new ForkTsCheckerWebpackPlugin(),
-    {% if cookiecutter.sentry_project -%}
-    process.env.SENTRY_AUTH_TOKEN &&
-      process.env.RELEASE &&
-      new SentryWebpackPlugin({
-        // sentry-cli configuration
-        release: process.env.RELEASE,
-        authToken: process.env.SENTRY_AUTH_TOKEN,
-        org: '{{ cookiecutter.sentry_organization }}',
-        project: '{{ cookiecutter.sentry_project }}',
-        // webpack specific configuration
-        include: '.webpack/service',
-        stripCommonPrefix: true,
-        urlPrefix: 'app:///',
-      }),
-    {%- endif %}
+    
     new DefinePlugin({
       'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV),
     }),

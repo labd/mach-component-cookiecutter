@@ -1,4 +1,4 @@
-import { getApiRoot } from 'lib/commercetools/client'
+import { getApiRoot } from "lib/commercetools/commercetools-client"
 
 const orders = {
   getOrderByOrderNumber: async ({ orderNumber }: { orderNumber: string }) => {

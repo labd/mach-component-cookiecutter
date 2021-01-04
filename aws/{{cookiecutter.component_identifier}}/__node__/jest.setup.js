@@ -1,7 +1,6 @@
 process.env.BABEL_ENV = 'test' // Make sure to load the appropriate babel plugins
 process.env.NODE_ENV = 'test' // set the proper node env
 global.__DEV__ = false
-import log from 'loglevel'
 
 // For async tests, catch all errors here so we don't have to try / catch
 // everywhere for safety
@@ -18,4 +17,4 @@ process.env.CT_SCOPES = 'foo'
 process.env.CT_API_URL = 'https://localhost'
 process.env.CT_AUTH_URL = 'https://localhost'
 process.env.AWS_REGION = 'eu-central-1'
-process.env.COMPONENT_NAME = {{ cookiecutter.name|replace('_', '-') }}
+process.env.COMPONENT_NAME = '{{ cookiecutter.name|slugify }}'

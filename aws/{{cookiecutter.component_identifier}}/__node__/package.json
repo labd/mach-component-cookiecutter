@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@commercetools/platform-sdk": "1.4.0",
+    "@commercetools/sdk-auth": "3.0.10",
     "@commercetools/sdk-client": "2.1.2",
     "@commercetools/sdk-middleware-auth": "6.1.4",
     "@commercetools/sdk-middleware-http": "6.0.9",
@@ -18,7 +19,6 @@
     "@sentry/integrations": "5.29.0",
     "@sentry/serverless": "5.29.0",
     "@sentry/tracing": "5.29.0",
-    "aws-lambda": "1.0.6",
     "koa": "2.13.0",
     "koa-bodyparser": "4.3.0",
     "koa-joi-router": "7.0.0",
@@ -27,6 +27,7 @@
   },
   "devDependencies": {
     "@babel/core": "7.12.3",
+    "@babel/preset-env": "7.12.11",
     "@babel/preset-typescript": "7.12.1",
     "@labd/eslint-config": "0.3.1",
     "@sentry/webpack-plugin": "1.13.0",
@@ -49,6 +50,7 @@
     "serverless-bundle": "3.2.1",
     "serverless-offline": "6.8.0",
     "serverless-webpack": "5.3.5",
+    "serverless-dotenv-plugin": "3.1.0",
     "supertest": "6.0.1",
     "ts-loader": "6.2.1",
     "tsconfig-paths-webpack-plugin": "3.3.0",

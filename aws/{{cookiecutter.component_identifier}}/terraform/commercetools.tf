@@ -1,9 +1,10 @@
+{% if not cookiecutter.use_commercetools_token_rotator|int -%}
 resource "commercetools_api_client" "main" {
   name  = "{{ cookiecutter.name|slugify }}"
   scope = local.ct_scopes
 }
+{% endif %}
 {% if cookiecutter.use_commercetools_api_extension|int -%}
-# Start commercetools API extension
 resource "aws_iam_user" "ct_api_extensions" {
   name = "ct-{{ cookiecutter.name|slugify }}-user"
 }
@@ -39,10 +40,8 @@ resource "commercetools_api_extension" "main" {
     aws_iam_access_key.ct_api_extensions,
   ]
 }
-# End commercetools API extension
 {%- endif %}
 {% if cookiecutter.use_commercetools_subscription|int -%}
-# Start commercetools API extension
 resource "aws_iam_user" "ct_subscription" {
   name = "ct-{{ cookiecutter.name|slugify }}-user"
 }

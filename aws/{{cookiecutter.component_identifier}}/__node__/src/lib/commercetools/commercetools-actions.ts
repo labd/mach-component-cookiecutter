@@ -1,13 +1,9 @@
-import { apiRootServer } from 'lib/commercetools/client'
-import assert from 'assert'
-
-const projectKey = process.env.CT_PROJECT_KEY
-assert(projectKey)
+import { getApiRoot } from 'lib/commercetools/client'
 
 const orders = {
   getOrderByOrderNumber: async ({ orderNumber }: { orderNumber: string }) => {
-    return apiRootServer
-      .withProjectKey({ projectKey })
+    const root = await getApiRoot()
+    return root
       .orders()
       .withOrderNumber({ orderNumber })
       .get()

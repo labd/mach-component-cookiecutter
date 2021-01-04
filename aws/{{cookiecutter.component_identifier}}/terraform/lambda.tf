@@ -1,3 +1,33 @@
+locals {
+  environment_variables = merge(
+    var.variables,
+    local.secret_references,
+    {
+      # Commercetools
+      CT_PROJECT_KEY = var.ct_project_key
+      CT_API_URL     = var.ct_api_url
+      {% if not cookiecutter.use_commercetools_token_rotator|int -%}
+      CT_CLIENT_ID   = commercetools_api_client.main.id
+      CT_SCOPES      = join(",", local.ct_scopes)
+      CT_AUTH_URL    = var.ct_auth_url
+      {% endif %}
+
+      RELEASE                     = "${local.component_name}@${var.component_version}"
+      COMPONENT_NAME              = local.component_name
+      ENVIRONMENT                 = var.environment
+      SITE                        = var.site
+      {% if cookiecutter.sentry_project -%}
+      SENTRY_DSN                  = var.sentry_dsn
+      {%- endif %}
+
+      AWS_XRAY_LOG_LEVEL       = "debug"
+      AWS_XRAY_DEBUG_MODE      = "true"
+      AWS_XRAY_CONTEXT_MISSING = "LOG_ERROR"
+    }
+  )
+}
+
+
 module "lambda_function" {
   source = "terraform-aws-modules/lambda/aws"
 
@@ -12,29 +42,7 @@ module "lambda_function" {
   memory_size   = 512
   timeout       = 10
 
-  environment_variables = merge(
-    var.environment_variables,
-    {
-      # Commercetools
-      CT_PROJECT_KEY = var.ct_project_key
-      CT_SCOPES      = join(",", local.ct_scopes)
-      CT_API_URL     = var.ct_api_url
-      CT_AUTH_URL    = var.ct_auth_url
-      CT_CLIENT_ID   = commercetools_api_client.main.id
-      # TODO: We have to see if we can pass this in a seperate
-      # 'secrets' attribute so that serverless can store it in a
-      # vault/param store
-      CT_CLIENT_SECRET            = commercetools_api_client.main.secret
-      RELEASE                     = "v@${var.component_version}"
-      ENVIRONMENT                 = var.environment
-      {% if cookiecutter.sentry_project -%}
-      SENTRY_DSN                  = var.sentry_dsn
-      {%- endif %}
-      {% if cookiecutter.use_secrets|int -%}
-      CUSTOM_SECRET_NAME          = aws_secretsmanager_secret.custom_secret.name
-      {%- endif %}
-    }
-  )
+  environment_variables = local.environment_variables
 
   create_package = false
   s3_existing_package = {
@@ -73,31 +81,3 @@ resource "aws_apigatewayv2_route" "application" {
   target    = "integrations/${aws_apigatewayv2_integration.gateway.id}"
 }
 {%- endif %}
-data "aws_iam_policy_document" "lambda_policy" {
-  statement {
-    actions = [
-      "s3:GetObject",
-    ]
-
-    resources = [
-      "arn:aws:s3:::${local.lambda_s3_repository}/*",
-    ]
-  }
-
-  {% if cookiecutter.use_commercetools_subscription|int -%}
-  statement {
-    sid       = "AllowSQSPermissions"
-    effect    = "Allow"
-    resources = [aws_sqs_queue.ct_order_created_queue.arn]
-    actions = [
-      "sqs:ChangeMessageVisibility",
-      "sqs:DeleteMessage",
-      "sqs:GetQueueAttributes",
-      "sqs:GetQueueUrl",
-      "sqs:ReceiveMessage",
-      "sqs:SendMessage",
-      "sqs:SendMessageBatch",
-    ]
-  }
-  {%- endif %}
-}

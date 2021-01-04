@@ -1,8 +1,4 @@
-resource "commercetools_api_client" "main" {
-  name  = "unit-test"
-  scope = local.ct_scopes
-}
-# Start commercetools API extension
+
 resource "aws_iam_user" "ct_api_extensions" {
   name = "ct-unit-test-user"
 }
@@ -38,7 +34,87 @@ resource "commercetools_api_extension" "main" {
     aws_iam_access_key.ct_api_extensions,
   ]
 }
-# End commercetools API extension
+
+data "aws_iam_policy_document" "lambda_policy" {
+  statement {
+    actions = [
+      "s3:GetObject",
+    ]
+
+    resources = [
+      "arn:aws:s3:::${local.lambda_s3_repository}/*",
+    ]
+  }
+
+  # Secrets manager
+  statement {
+    actions = [
+      "secretsmanager:GetSecretValue",
+    ]
+
+    resources = [
+      "*",
+    ]
+
+    condition {
+      test     = "StringEquals"
+      variable = "secretsmanager:ResourceTag/lambda"
+      values   = [local.component_name]
+    }
+  }
+
+  # Logging
+  statement {
+    effect = "Allow"
+
+    actions = [
+      "logs:CreateLogGroup",
+    ]
+
+    resources = [
+      "arn:aws:logs:*:*:*",
+    ]
+  }
+
+  statement {
+    effect = "Allow"
+
+    actions = [
+      "logs:CreateLogStream",
+      "logs:PutLogEvents",
+    ]
+
+    resources = [
+      "arn:aws:logs:*:*:*",
+    ]
+  }
+
+  
+}
+
+locals {
+  environment_variables = merge(
+    var.variables,
+    local.secret_references,
+    {
+      # Commercetools
+      CT_PROJECT_KEY = var.ct_project_key
+      CT_API_URL     = var.ct_api_url
+      
+
+      RELEASE                     = "${local.component_name}@${var.component_version}"
+      COMPONENT_NAME              = local.component_name
+      ENVIRONMENT                 = var.environment
+      SITE                        = var.site
+      
+
+      AWS_XRAY_LOG_LEVEL       = "debug"
+      AWS_XRAY_DEBUG_MODE      = "true"
+      AWS_XRAY_CONTEXT_MISSING = "LOG_ERROR"
+    }
+  )
+}
+
 
 module "lambda_function" {
   source = "terraform-aws-modules/lambda/aws"
@@ -51,25 +127,7 @@ module "lambda_function" {
   memory_size   = 512
   timeout       = 10
 
-  environment_variables = merge(
-    var.environment_variables,
-    {
-      # Commercetools
-      CT_PROJECT_KEY = var.ct_project_key
-      CT_SCOPES      = join(",", local.ct_scopes)
-      CT_API_URL     = var.ct_api_url
-      CT_AUTH_URL    = var.ct_auth_url
-      CT_CLIENT_ID   = commercetools_api_client.main.id
-      # TODO: We have to see if we can pass this in a seperate
-      # 'secrets' attribute so that serverless can store it in a
-      # vault/param store
-      CT_CLIENT_SECRET            = commercetools_api_client.main.secret
-      RELEASE                     = "v@${var.component_version}"
-      ENVIRONMENT                 = var.environment
-      
-      
-    }
-  )
+  environment_variables = local.environment_variables
 
   create_package = false
   s3_existing_package = {
@@ -84,27 +142,14 @@ module "lambda_function" {
   policy_json        = data.aws_iam_policy_document.lambda_policy.json
 }
 
-data "aws_iam_policy_document" "lambda_policy" {
-  statement {
-    actions = [
-      "s3:GetObject",
-    ]
-
-    resources = [
-      "arn:aws:s3:::${local.lambda_s3_repository}/*",
-    ]
-  }
-
-  
-}
-
 locals {
   ct_scopes = formatlist("%s:%s", [
     "manage_orders",
     "view_orders",
   ], var.ct_project_key)
+  component_name       = "unit-test"
   lambda_s3_repository = "mach-lambda-repository"
-  lambda_s3_key        = "unit-test-${var.component_version}.zip"
+  lambda_s3_key        = "${local.component_name}-${var.component_version}.zip"
 }
 
 terraform {
@@ -118,6 +163,40 @@ terraform {
 data "aws_region" "current" {}
 output "component_version" {
   value = var.component_version
+}
+
+locals {
+  secrets = merge(var.secrets, {
+    CT_ACCESS_TOKEN_SECRET_NAME = module.ct_secret.name
+    
+  })
+
+  secret_references = {
+    for key in keys(local.secrets) : "${key}_SECRET_NAME" => aws_secretsmanager_secret.component_secret[key].name
+  }
+}
+
+resource "aws_secretsmanager_secret" "component_secret" {
+  for_each = local.secrets
+  name     = "${local.component_name}/${replace(each.key, "_", "-")}-secret"
+
+  tags = {
+    lambda = local.component_name
+  }
+}
+
+resource "aws_secretsmanager_secret_version" "component_secret" {
+  for_each      = local.secrets
+  secret_id     = aws_secretsmanager_secret.component_secret[each.key].id
+  secret_string = each.value
+}
+
+module "ct_secret" {
+  source = "git::https://github.com/labd/mach-component-aws-commercetools-token-refresher.git//terraform/secret"
+
+  name   = local.component_name
+  site   = var.site
+  scopes = local.ct_scopes
 }
 
 # function app specific

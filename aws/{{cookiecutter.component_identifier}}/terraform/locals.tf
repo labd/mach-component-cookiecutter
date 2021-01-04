@@ -3,6 +3,7 @@ locals {
     "manage_orders",
     "view_orders",
   ], var.ct_project_key)
+  component_name       = "{{ cookiecutter.name|slugify }}"
   lambda_s3_repository = "{{ cookiecutter.lambda_s3_repository }}"
-  lambda_s3_key        = "{{ cookiecutter.name|replace('_', '-') }}-${var.component_version}.zip"
+  lambda_s3_key        = "${local.component_name}-${var.component_version}.zip"
 }

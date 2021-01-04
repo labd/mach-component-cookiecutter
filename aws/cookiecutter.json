@@ -11,5 +11,5 @@
   "lambda_s3_repository": "mach-lambda-repository",
   "sentry_organization": "",
   "sentry_project": "",
-  "use_secrets": 0
+  "use_commercetools_token_rotator": 1
 }

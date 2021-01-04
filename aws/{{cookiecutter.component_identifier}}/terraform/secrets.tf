@@ -1,15 +1,19 @@
 locals {
-  secrets = merge(var.secrets, {
-    {% if cookiecutter.use_commercetools_token_rotator|int -%}
+  {% if cookiecutter.use_commercetools_token_rotator|int -%}
+  secrets = var.secrets
+  secret_references = merge({
+    for key in keys(local.secrets) : "${key}_SECRET_NAME" => aws_secretsmanager_secret.component_secret[key].name
+  }, {
     CT_ACCESS_TOKEN_SECRET_NAME = module.ct_secret.name
-    {% else %}
-    CT_CLIENT_SECRET = commercetools_api_client.main.secret,
-    {% endif %}
   })
-
+  {% else -%}
+  secrets = merge(var.secrets, {
+    CT_CLIENT_SECRET = commercetools_api_client.main.secret,
+  })
   secret_references = {
     for key in keys(local.secrets) : "${key}_SECRET_NAME" => aws_secretsmanager_secret.component_secret[key].name
   }
+  {% endif %}
 }
 
 resource "aws_secretsmanager_secret" "component_secret" {

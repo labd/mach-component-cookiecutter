@@ -166,14 +166,13 @@ output "component_version" {
 }
 
 locals {
-  secrets = merge(var.secrets, {
-    CT_ACCESS_TOKEN_SECRET_NAME = module.ct_secret.name
-    
-  })
-
-  secret_references = {
+  secrets = var.secrets
+  secret_references = merge({
     for key in keys(local.secrets) : "${key}_SECRET_NAME" => aws_secretsmanager_secret.component_secret[key].name
-  }
+  }, {
+    CT_ACCESS_TOKEN_SECRET_NAME = module.ct_secret.name
+  })
+  
 }
 
 resource "aws_secretsmanager_secret" "component_secret" {

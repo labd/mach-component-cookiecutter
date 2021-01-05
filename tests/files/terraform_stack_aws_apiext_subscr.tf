@@ -188,7 +188,7 @@ module "lambda_function" {
 
   function_name = "${var.site}-unit-test"
   description   = "Unit Test component"
-  handler       = "index.handler"
+  handler       = "src/rest/handler.handler"
   runtime       = "nodejs12.x"
   
   memory_size   = 512
@@ -207,6 +207,7 @@ module "lambda_function" {
 
   attach_policy_json = true
   policy_json        = data.aws_iam_policy_document.lambda_policy.json
+  publish            = true
 }
 
 locals {

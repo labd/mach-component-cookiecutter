@@ -1,4 +1,4 @@
-service: ${env:NAME_PREFIX,''}{{ cookiecutter.name|replace('_', '-') }}
+service: ${env:NAME_PREFIX,''}{{ cookiecutter.name|slugify }}
 
 plugins:
   - serverless-webpack
@@ -13,12 +13,17 @@ provider:
   logs:
     httpApi: true
   environment:
-    ORDER_PREFIX: ${env:ORDER_PREFIX,''}
-
-package:
-  # A package artifact will only be used during MACH deployment.
-  # If this environment variable is not set, it will assume a locally built one
-  artifact: ${env:PACKAGE_ARTIFACT,''}
+    AWS_REGION: eu-central-1
+    COMPONENT_NAME: {{ cookiecutter.name|slugify }}
+    LOCALSTACK_URL: http://localhost:4566
+    {% if cookiecutter.use_commercetools|int -%}
+    CT_API_URL: https://api.europe-west1.gcp.commercetools.com
+    CT_AUTH_URL: https://auth.europe-west1.gcp.commercetools.com
+    CT_PROJECT_KEY: ${file(./.credentials.json):CT_PROJECT_KEY}
+    CT_CLIENT_ID: ${file(./.credentials.json):CT_CLIENT_ID}
+    CT_CLIENT_SECRET: ${file(./.credentials.json):CT_CLIENT_SECRET}
+    CT_SCOPES: ${file(./.credentials.json):CT_SCOPES}
+    {%- endif %}
 
 custom:
   serverless-offline:

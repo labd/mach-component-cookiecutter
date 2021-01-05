@@ -7,12 +7,12 @@ locals {
       # Commercetools
       CT_PROJECT_KEY = var.ct_project_key
       CT_API_URL     = var.ct_api_url
-      {%- endif %}
       {% if not cookiecutter.use_commercetools_token_rotator|int -%}
       CT_CLIENT_ID   = commercetools_api_client.main.id
       CT_SCOPES      = join(",", local.ct_scopes)
       CT_AUTH_URL    = var.ct_auth_url
-      {% endif %}
+      {%- endif %}
+      {%- endif %}
 
       RELEASE                     = "${local.component_name}@${var.component_version}"
       COMPONENT_NAME              = local.component_name

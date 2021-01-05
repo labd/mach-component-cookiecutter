@@ -61,7 +61,6 @@ locals {
     local.secret_references,
     {
       
-      
 
       RELEASE                     = "${local.component_name}@${var.component_version}"
       COMPONENT_NAME              = local.component_name

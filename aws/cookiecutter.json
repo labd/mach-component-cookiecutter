@@ -5,12 +5,12 @@
   "short_name": "{{ cookiecutter.name|replace('-', '')|replace('_', '') }}",
   "component_identifier": "{{ cookiecutter.name|slugify }}-component",
   "function_name": "{{ cookiecutter.name|slugify(separator='_') }}",
+  "lambda_s3_repository": "",
   "use_public_api": 1,
   "use_commercetools": 1,
   "use_commercetools_api_extension": 1,
   "use_commercetools_subscription": 1,
-  "lambda_s3_repository": "",
+  "use_commercetools_token_rotator": 1,
   "sentry_organization": "",
-  "sentry_project": "",
-  "use_commercetools_token_rotator": 1
+  "sentry_project": ""
 }

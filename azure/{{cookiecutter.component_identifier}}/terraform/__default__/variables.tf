@@ -68,6 +68,7 @@ variable "site" {
   description = "Identifier of the site."
 }
 
+{% if cookiecutter.use_commercetools|int -%}
 variable "ct_project_key" {
   type = string
 }
@@ -90,6 +91,7 @@ variable "ct_stores" {
   }))
   default = {}
 }
+{%- endif %}
 
 
 variable "variables" {

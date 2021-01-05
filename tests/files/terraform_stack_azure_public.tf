@@ -112,12 +112,6 @@ resource "azurerm_monitor_metric_alert" "ping" {
 
 
 
-resource "commercetools_api_client" "main" {
-  name  = format("%s_unit-test", var.name_prefix)
-  scope = local.ct_scopes
-}
-
-
 data "azurerm_storage_account" "shared" {
   name                = ""
   resource_group_name = ""
@@ -163,13 +157,6 @@ locals {
     REGION             = var.region
     ENVIRONMENT        = var.environment
     
-    # Commercetools
-    CTP_PROJECT_KEY            = var.ct_project_key
-    CTP_SCOPES                 = join(",", local.ct_scopes)
-    CTP_API_URL                = var.ct_api_url
-    CTP_AUTH_URL               = var.ct_auth_url
-    CTP_CLIENT_ID              = commercetools_api_client.main.id
-
 
     # Azure deployment
     # Note: WEBSITE_RUN_FROM_ZIP is needed for consumption plan, but for app service plan this may need to be WEBSITE_RUN_FROM_PACKAGE instead.
@@ -182,7 +169,7 @@ locals {
   secret_variables = { for k, v in azurerm_key_vault_secret.secrets : replace(k, "-", "_") => "@Microsoft.KeyVault(SecretUri=${azurerm_key_vault.main.vault_uri}secrets/${v.name}/${v.version})" }
 
   extra_secrets = {
-    CTP_CLIENT_SECRET = "@Microsoft.KeyVault(SecretUri=${azurerm_key_vault.main.vault_uri}secrets/${azurerm_key_vault_secret.ct_client_secret.name}/${azurerm_key_vault_secret.ct_client_secret.version})"
+    
   }
 }
 
@@ -269,32 +256,12 @@ resource "azurerm_key_vault_secret" "secrets" {
 }
 
 
-resource "azurerm_key_vault_secret" "ct_client_secret" {
-  name         = "ct-client-secret"
-  value        = commercetools_api_client.main.secret
-  key_vault_id = azurerm_key_vault.main.id
-  tags         = var.tags
-
-  depends_on = [
-    azurerm_key_vault_access_policy.service_access,
-  ]
-}
-
 locals {
   storage_type     = var.environment == "production" ? "ZRS" : "LRS"
-  ct_scopes = formatlist("%s:%s", [
-    "manage_orders",
-		"view_orders",
-  ], var.ct_project_key)
+  
 }
 
-terraform {
-  required_providers {
-    commercetools = {
-      source = "labd/commercetools"
-    }
-  }
-}
+
 output "app_service_name" {
   value       = azurerm_function_app.main.name
   description = "Function app name"
@@ -387,28 +354,7 @@ variable "site" {
   description = "Identifier of the site."
 }
 
-variable "ct_project_key" {
-  type = string
-}
 
-variable "ct_api_url" {
-  type    = string
-  default = ""
-}
-
-variable "ct_auth_url" {
-  type    = string
-  default = ""
-}
-
-variable "ct_stores" {
-  type = map(object({
-    key       = string
-    variables = map(string)
-    secrets   = map(string)
-  }))
-  default = {}
-}
 
 
 variable "variables" {

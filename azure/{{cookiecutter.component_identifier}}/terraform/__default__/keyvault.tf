@@ -52,7 +52,7 @@ resource "azurerm_key_vault_secret" "secrets" {
   ]
 }
 
-
+{% if cookiecutter.use_commercetools|int -%}
 resource "azurerm_key_vault_secret" "ct_client_secret" {
   name         = "ct-client-secret"
   value        = commercetools_api_client.main.secret
@@ -63,3 +63,4 @@ resource "azurerm_key_vault_secret" "ct_client_secret" {
     azurerm_key_vault_access_policy.service_access,
   ]
 }
+{%- endif %}

@@ -100,14 +100,12 @@ locals {
     SITE               = var.site
     REGION             = var.region
     ENVIRONMENT        = var.environment
-    
     # Commercetools
     CTP_PROJECT_KEY            = var.ct_project_key
     CTP_SCOPES                 = join(",", local.ct_scopes)
     CTP_API_URL                = var.ct_api_url
     CTP_AUTH_URL               = var.ct_auth_url
     CTP_CLIENT_ID              = commercetools_api_client.main.id
-
 
     # Azure deployment
     # Note: WEBSITE_RUN_FROM_ZIP is needed for consumption plan, but for app service plan this may need to be WEBSITE_RUN_FROM_PACKAGE instead.
@@ -206,7 +204,6 @@ resource "azurerm_key_vault_secret" "secrets" {
   ]
 }
 
-
 resource "azurerm_key_vault_secret" "ct_client_secret" {
   name         = "ct-client-secret"
   value        = commercetools_api_client.main.secret
@@ -217,7 +214,6 @@ resource "azurerm_key_vault_secret" "ct_client_secret" {
     azurerm_key_vault_access_policy.service_access,
   ]
 }
-
 locals {
   storage_type     = var.environment == "production" ? "ZRS" : "LRS"
   ct_scopes = formatlist("%s:%s", [

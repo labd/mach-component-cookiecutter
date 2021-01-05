@@ -4,6 +4,7 @@
   "scripts": {
     "start": "serverless offline",
     "package": "serverless package",
+    "package:prod": "NODE_ENV=production serverless --stage prod package",
     "deploy": "serverless deploy",
     "test": "jest",
     "test:ci": "jest --ci --coverage --verbose --coverageDirectory=test_output",

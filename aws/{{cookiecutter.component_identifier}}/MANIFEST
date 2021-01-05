@@ -1,2 +1,9 @@
 __{{ cookiecutter.language }}__
+{% if not cookiecutter.use_commercetools|int -%}!terraform/commercetools.tf{% endif %}
 {% if not cookiecutter.use_commercetools_subscription|int -%}!terraform/sqs.tf{% endif %}
+{% if cookiecutter.language == "node" %}
+{% if not cookiecutter.use_commercetools|int -%}
+!src/@types/@commercetools
+!src/lib/commercetools
+{% endif %}
+{% endif %}

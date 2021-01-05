@@ -1,3 +1,6 @@
+
+
+
 data "aws_iam_policy_document" "lambda_policy" {
   statement {
     actions = [
@@ -60,7 +63,9 @@ locals {
     var.variables,
     local.secret_references,
     {
-      
+      # Commercetools
+      CT_PROJECT_KEY = var.ct_project_key
+      CT_API_URL     = var.ct_api_url
       
 
       RELEASE                     = "${local.component_name}@${var.component_version}"
@@ -105,13 +110,22 @@ module "lambda_function" {
 }
 
 locals {
-  
+  ct_scopes = formatlist("%s:%s", [
+    "manage_orders",
+    "view_orders",
+  ], var.ct_project_key)
   component_name       = "unit-test"
   lambda_s3_repository = "mach-lambda-repository"
   lambda_s3_key        = "${local.component_name}-${var.component_version}.zip"
 }
 
-
+terraform {
+  required_providers {
+    commercetools = {
+      source = "labd/commercetools"
+    }
+  }
+}
 
 data "aws_region" "current" {}
 output "component_version" {
@@ -119,12 +133,13 @@ output "component_version" {
 }
 
 locals {
-  secrets = merge(var.secrets, {
-    
-  })
-  secret_references = {
+  secrets = var.secrets
+  secret_references = merge({
     for key in keys(local.secrets) : "${key}_SECRET_NAME" => aws_secretsmanager_secret.component_secret[key].name
-  }
+  }, {
+    CT_ACCESS_TOKEN_SECRET_NAME = module.ct_secret.name
+  })
+  
 }
 
 resource "aws_secretsmanager_secret" "component_secret" {
@@ -142,6 +157,14 @@ resource "aws_secretsmanager_secret_version" "component_secret" {
   secret_string = each.value
 }
 
+module "ct_secret" {
+  source = "git::https://github.com/labd/mach-component-aws-commercetools-token-refresher.git//terraform/secret"
+
+  name   = local.component_name
+  site   = var.site
+  scopes = local.ct_scopes
+}
+
 # function app specific
 variable "component_version" {
   type        = string
@@ -156,6 +179,29 @@ variable "environment" {
 variable "site" {
   type        = string
   description = "Identifier of the site."
+}
+
+variable "ct_project_key" {
+  type = string
+}
+
+variable "ct_api_url" {
+  type    = string
+  default = ""
+}
+
+variable "ct_auth_url" {
+  type    = string
+  default = ""
+}
+
+variable "ct_stores" {
+  type = map(object({
+    key       = string
+    variables = map(string)
+    secrets   = map(string)
+  }))
+  default = {}
 }
 
 variable "variables" {

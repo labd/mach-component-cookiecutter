@@ -38,17 +38,24 @@ def test_generate(cookies, template, language):
 
 @pytest.mark.parametrize("template", ["azure", "aws"])
 @pytest.mark.parametrize("use_public_api", (1, 0))
-@pytest.mark.parametrize("use_commercetools_api_extension", (1, 0))
-@pytest.mark.parametrize("use_commercetools_subscription", (1, 0))
+@pytest.mark.parametrize("use_commercetools, use_commercetools_api_extension, use_commercetools_subscription", (
+    (0, 0, 0),
+    (1, 0, 0),
+    (1, 1, 0),
+    (1, 1, 1),
+    (1, 0, 1),
+))
 def test_terraform_stack(
     cookies,
     template,
     use_public_api,
+    use_commercetools,
     use_commercetools_api_extension,
     use_commercetools_subscription,
 ):
     context = {
         "use_public_api": use_public_api,
+        "use_commercetools": use_commercetools,
         "use_commercetools_api_extension": use_commercetools_api_extension,
         "use_commercetools_subscription": use_commercetools_subscription,
         "name": "unit-test",
@@ -69,6 +76,7 @@ def test_terraform_stack(
     filename = _get_tf_filename(
         template,
         use_public_api,
+        use_commercetools,
         use_commercetools_api_extension,
         use_commercetools_subscription,
     )
@@ -80,12 +88,15 @@ def test_terraform_stack(
 def _get_tf_filename(
     template: str,
     use_public_api: int,
+    use_commercetools: int,
     use_commercetools_api_extension: int,
     use_commercetools_subscription: int,
 ) -> str:
     parts = []
     if use_public_api:
         parts.append("public")
+    if use_commercetools:
+        parts.append("ct")
     if use_commercetools_api_extension:
         parts.append("apiext")
     if use_commercetools_subscription:

@@ -10,11 +10,13 @@
     "tsc": "tsc --noEmit -p ."
   },
   "dependencies": {
+    {% if cookiecutter.use_commercetools|int -%}
     "@commercetools/platform-sdk": "1.4.0",
     "@commercetools/sdk-auth": "3.0.10",
     "@commercetools/sdk-client": "2.1.2",
     "@commercetools/sdk-middleware-auth": "6.1.4",
     "@commercetools/sdk-middleware-http": "6.0.9",
+    {%- endif %}
     "@koa/cors": "3.1.0",
     "@sentry/integrations": "5.29.0",
     "@sentry/serverless": "5.29.0",

@@ -3,9 +3,11 @@ locals {
     var.variables,
     local.secret_references,
     {
+      {% if cookiecutter.use_commercetools|int -%}
       # Commercetools
       CT_PROJECT_KEY = var.ct_project_key
       CT_API_URL     = var.ct_api_url
+      {%- endif %}
       {% if not cookiecutter.use_commercetools_token_rotator|int -%}
       CT_CLIENT_ID   = commercetools_api_client.main.id
       CT_SCOPES      = join(",", local.ct_scopes)

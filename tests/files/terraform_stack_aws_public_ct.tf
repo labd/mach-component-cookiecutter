@@ -1,3 +1,6 @@
+
+
+
 data "aws_iam_policy_document" "lambda_policy" {
   statement {
     actions = [
@@ -60,7 +63,9 @@ locals {
     var.variables,
     local.secret_references,
     {
-      
+      # Commercetools
+      CT_PROJECT_KEY = var.ct_project_key
+      CT_API_URL     = var.ct_api_url
       
 
       RELEASE                     = "${local.component_name}@${var.component_version}"
@@ -102,16 +107,44 @@ module "lambda_function" {
   attach_policy_json = true
   policy_json        = data.aws_iam_policy_document.lambda_policy.json
   publish            = true
+  allowed_triggers = {
+    APIGatewayAny = {
+      service = "apigateway"
+      arn     = var.api_gateway_execution_arn
+    }
+  }
+}
+resource "aws_apigatewayv2_integration" "gateway" {
+  api_id           = var.api_gateway
+  integration_type = "AWS_PROXY"
+
+  connection_type = "INTERNET"
+  description     = "GraphQL Gateway"
+  integration_uri = module.lambda_function.this_lambda_function_arn
 }
 
+resource "aws_apigatewayv2_route" "application" {
+  api_id    = var.api_gateway
+  route_key = "ANY /unit-test/{proxy+}"
+  target    = "integrations/${aws_apigatewayv2_integration.gateway.id}"
+}
 locals {
-  
+  ct_scopes = formatlist("%s:%s", [
+    "manage_orders",
+    "view_orders",
+  ], var.ct_project_key)
   component_name       = "unit-test"
   lambda_s3_repository = "mach-lambda-repository"
   lambda_s3_key        = "${local.component_name}-${var.component_version}.zip"
 }
 
-
+terraform {
+  required_providers {
+    commercetools = {
+      source = "labd/commercetools"
+    }
+  }
+}
 
 data "aws_region" "current" {}
 output "component_version" {
@@ -119,12 +152,13 @@ output "component_version" {
 }
 
 locals {
-  secrets = merge(var.secrets, {
-    
-  })
-  secret_references = {
+  secrets = var.secrets
+  secret_references = merge({
     for key in keys(local.secrets) : "${key}_SECRET_NAME" => aws_secretsmanager_secret.component_secret[key].name
-  }
+  }, {
+    CT_ACCESS_TOKEN_SECRET_NAME = module.ct_secret.name
+  })
+  
 }
 
 resource "aws_secretsmanager_secret" "component_secret" {
@@ -140,6 +174,14 @@ resource "aws_secretsmanager_secret_version" "component_secret" {
   for_each      = local.secrets
   secret_id     = aws_secretsmanager_secret.component_secret[each.key].id
   secret_string = each.value
+}
+
+module "ct_secret" {
+  source = "git::https://github.com/labd/mach-component-aws-commercetools-token-refresher.git//terraform/secret"
+
+  name   = local.component_name
+  site   = var.site
+  scopes = local.ct_scopes
 }
 
 # function app specific
@@ -158,6 +200,29 @@ variable "site" {
   description = "Identifier of the site."
 }
 
+variable "ct_project_key" {
+  type = string
+}
+
+variable "ct_api_url" {
+  type    = string
+  default = ""
+}
+
+variable "ct_auth_url" {
+  type    = string
+  default = ""
+}
+
+variable "ct_stores" {
+  type = map(object({
+    key       = string
+    variables = map(string)
+    secrets   = map(string)
+  }))
+  default = {}
+}
+
 variable "variables" {
   type        = map(string)
   description = "Generic way to pass variables to components. Some of these can also be used as environment variables."
@@ -169,4 +234,12 @@ variable "secrets" {
 }
 
 
+variable "api_gateway" {
+  type        = string
+  description = "API Gateway to publish in"
+}
 
+variable "api_gateway_execution_arn" {
+  type        = string
+  description = "API Gateway API Execution ARN"
+}

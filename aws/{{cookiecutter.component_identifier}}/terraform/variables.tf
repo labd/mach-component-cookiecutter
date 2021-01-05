@@ -13,7 +13,7 @@ variable "site" {
   type        = string
   description = "Identifier of the site."
 }
-
+{% if cookiecutter.use_commercetools|int %}
 variable "ct_project_key" {
   type = string
 }
@@ -36,7 +36,7 @@ variable "ct_stores" {
   }))
   default = {}
 }
-
+{% endif %}
 variable "variables" {
   type        = map(string)
   description = "Generic way to pass variables to components. Some of these can also be used as environment variables."

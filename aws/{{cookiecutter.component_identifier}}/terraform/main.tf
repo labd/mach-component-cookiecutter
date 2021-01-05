@@ -1,3 +1,4 @@
+{% if cookiecutter.use_commercetools|int -%}
 terraform {
   required_providers {
     commercetools = {
@@ -5,5 +6,6 @@ terraform {
     }
   }
 }
+{%- endif %}
 
 data "aws_region" "current" {}

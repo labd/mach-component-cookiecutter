@@ -47,14 +47,18 @@ def test_terraform_stack(
     use_commercetools_api_extension,
     use_commercetools_subscription,
 ):
+    context = {
+        "use_public_api": use_public_api,
+        "use_commercetools_api_extension": use_commercetools_api_extension,
+        "use_commercetools_subscription": use_commercetools_subscription,
+        "name": "unit-test",
+    }
+    if template == "aws":
+        context["lambda_s3_repository"] = "mach-lambda-repository"
+
     result = cookies.bake(
         template=template,
-        extra_context={
-            "use_public_api": use_public_api,
-            "use_commercetools_api_extension": use_commercetools_api_extension,
-            "use_commercetools_subscription": use_commercetools_subscription,
-            "name": "unit-test",
-        },
+        extra_context=context,
     )
     assert result.exit_code == 0
     assert result.project.isdir()

@@ -1,4 +1,3 @@
-# azure stuff
 variable "short_name" {
   type        = string
   description = "Short name passed by Mull. Will not be more than 10 characters"
@@ -52,7 +51,6 @@ variable "tags" {
   description = "Additional tags (e.g. `map('BusinessUnit','XYZ')`"
 }
 
-# function app specific
 variable "component_version" {
   type        = string
   description = "Version to deploy"
@@ -90,9 +88,7 @@ variable "ct_stores" {
     secrets   = map(string)
   }))
   default = {}
-}
-{%- endif %}
-
+}{% endif %}
 
 variable "variables" {
   type        = map(string)

@@ -4,6 +4,5 @@ locals {
   ct_scopes = formatlist("%s:%s", [
     "manage_orders",
 		"view_orders",
-  ], var.ct_project_key)
-  {%- endif %}
+  ], var.ct_project_key){% endif %}
 }

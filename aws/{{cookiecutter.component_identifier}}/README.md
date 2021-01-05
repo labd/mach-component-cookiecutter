@@ -18,7 +18,8 @@ sites:
 
 components:
 - name: {{ cookiecutter.name }}
-  {% if cookiecutter.name != cookiecutter.short_name %}short_name: apiexts{% endif %}
+  {% if cookiecutter.name != cookiecutter.short_name -%}
+  short_name: apiexts{% endif %}
   source: ...
   version: <git hash of version you want to release>
 ```
@@ -26,8 +27,11 @@ components:
 ## Installation
 
 {% if cookiecutter.language == "node" -%}
-1. Run `yarn install`
-{%- endif %}
+Run 
+
+````bash
+$ yarn install
+```{% endif %}
 
 ## Getting started
 
@@ -36,8 +40,7 @@ Run
 {% if cookiecutter.language == "node" -%}
 ```bash
 $ yarn start
-```
-{%- endif %}
+```{% endif %}
 
 And you're ready to go.
 
@@ -46,5 +49,4 @@ And you're ready to go.
 {% if cookiecutter.language == "node" -%}
 ```bash
 $ yarn test
-```
-{%- endif %}
+```{% endif %}

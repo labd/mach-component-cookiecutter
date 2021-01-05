@@ -48,8 +48,7 @@ locals {
     CTP_SCOPES                 = join(",", local.ct_scopes)
     CTP_API_URL                = var.ct_api_url
     CTP_AUTH_URL               = var.ct_auth_url
-    CTP_CLIENT_ID              = commercetools_api_client.main.id
-    {%- endif %}
+    CTP_CLIENT_ID              = commercetools_api_client.main.id{% endif %}
 
     # Azure deployment
     # Note: WEBSITE_RUN_FROM_ZIP is needed for consumption plan, but for app service plan this may need to be WEBSITE_RUN_FROM_PACKAGE instead.
@@ -63,8 +62,7 @@ locals {
 
   extra_secrets = {
     {% if cookiecutter.use_commercetools|int -%}
-    CTP_CLIENT_SECRET = "@Microsoft.KeyVault(SecretUri=${azurerm_key_vault.main.vault_uri}secrets/${azurerm_key_vault_secret.ct_client_secret.name}/${azurerm_key_vault_secret.ct_client_secret.version})"
-    {%- endif %}
+    CTP_CLIENT_SECRET = "@Microsoft.KeyVault(SecretUri=${azurerm_key_vault.main.vault_uri}secrets/${azurerm_key_vault_secret.ct_client_secret.name}/${azurerm_key_vault_secret.ct_client_secret.version})"{% endif %}
   }
 }
 
@@ -82,10 +80,8 @@ resource "azurerm_function_app" "main" {
 
   site_config {
     {% if cookiecutter.language == "node" -%}
-    linux_fx_version = "NODE|10.15"
-    {% elif cookiecutter.language == "python" -%}
-    linux_fx_version = "PYTHON|3.8"
-    {%- endif %}
+    linux_fx_version = "NODE|10.15"{% elif cookiecutter.language == "python" -%}
+    linux_fx_version = "PYTHON|3.8"{% endif %}
 
     cors {
       allowed_origins = ["*"]

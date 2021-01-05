@@ -111,11 +111,12 @@ resource "azurerm_monitor_metric_alert" "ping" {
 }
 
 
-
 resource "commercetools_api_client" "main" {
   name  = format("%s_unit-test", var.name_prefix)
   scope = local.ct_scopes
 }
+
+
 
 
 data "azurerm_storage_account" "shared" {
@@ -313,7 +314,6 @@ resource "azurerm_storage_account" "main" {
 }
 
 
-# azure stuff
 variable "short_name" {
   type        = string
   description = "Short name passed by Mull. Will not be more than 10 characters"
@@ -367,7 +367,6 @@ variable "tags" {
   description = "Additional tags (e.g. `map('BusinessUnit','XYZ')`"
 }
 
-# function app specific
 variable "component_version" {
   type        = string
   description = "Version to deploy"
@@ -405,7 +404,6 @@ variable "ct_stores" {
   }))
   default = {}
 }
-
 
 variable "variables" {
   type        = map(string)

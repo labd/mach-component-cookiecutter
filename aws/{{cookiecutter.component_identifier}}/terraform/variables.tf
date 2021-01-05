@@ -1,4 +1,3 @@
-# function app specific
 variable "component_version" {
   type        = string
   description = "Version to deploy"
@@ -35,8 +34,7 @@ variable "ct_stores" {
     secrets   = map(string)
   }))
   default = {}
-}
-{% endif %}
+}{% endif %}
 variable "variables" {
   type        = map(string)
   description = "Generic way to pass variables to components. Some of these can also be used as environment variables."
@@ -46,14 +44,12 @@ variable "secrets" {
   type        = map(string)
   description = "Map of secret values. Will be put in the key vault."
 }
-
-{% if cookiecutter.sentry_project -%}
+{% if cookiecutter.sentry_project %}
 variable "sentry_dsn" {
   type    = string
   default = ""
-}
-{%- endif %}
-{% if cookiecutter.use_public_api|int -%}
+}{% endif %}
+{% if cookiecutter.use_public_api|int %}
 variable "api_gateway" {
   type        = string
   description = "API Gateway to publish in"
@@ -62,5 +58,4 @@ variable "api_gateway" {
 variable "api_gateway_execution_arn" {
   type        = string
   description = "API Gateway API Execution ARN"
-}
-{%- endif %}
+}{% endif %}

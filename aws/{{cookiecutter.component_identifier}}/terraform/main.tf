@@ -5,7 +5,6 @@ terraform {
       source = "labd/commercetools"
     }
   }
-}
-{%- endif %}
+}{% endif %}
 
 data "aws_region" "current" {}

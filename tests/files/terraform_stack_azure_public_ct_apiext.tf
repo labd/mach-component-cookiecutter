@@ -111,13 +111,12 @@ resource "azurerm_monitor_metric_alert" "ping" {
 }
 
 
-
 resource "commercetools_api_client" "main" {
   name  = format("%s_unit-test", var.name_prefix)
   scope = local.ct_scopes
 }
 
-# Start commercetools API extension
+
 
 # Get the functions keys out of the app
 resource "azurerm_template_deployment" "function_keys" {
@@ -171,7 +170,6 @@ resource "commercetools_api_extension" "main" {
     azurerm_function_app.main
   ]
 }
-# End commercetools API extension
 data "azurerm_storage_account" "shared" {
   name                = ""
   resource_group_name = ""
@@ -367,7 +365,6 @@ resource "azurerm_storage_account" "main" {
 }
 
 
-# azure stuff
 variable "short_name" {
   type        = string
   description = "Short name passed by Mull. Will not be more than 10 characters"
@@ -421,7 +418,6 @@ variable "tags" {
   description = "Additional tags (e.g. `map('BusinessUnit','XYZ')`"
 }
 
-# function app specific
 variable "component_version" {
   type        = string
   description = "Version to deploy"
@@ -459,7 +455,6 @@ variable "ct_stores" {
   }))
   default = {}
 }
-
 
 variable "variables" {
   type        = map(string)

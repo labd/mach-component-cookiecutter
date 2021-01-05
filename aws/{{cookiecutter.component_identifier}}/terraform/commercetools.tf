@@ -2,8 +2,7 @@
 resource "commercetools_api_client" "main" {
   name  = "{{ cookiecutter.name|slugify }}"
   scope = local.ct_scopes
-}
-{% endif %}
+}{% endif %}
 {% if cookiecutter.use_commercetools_api_extension|int -%}
 resource "aws_iam_user" "ct_api_extensions" {
   name = "ct-{{ cookiecutter.name|slugify }}-user"
@@ -39,8 +38,7 @@ resource "commercetools_api_extension" "main" {
     aws_iam_user.ct_api_extensions,
     aws_iam_access_key.ct_api_extensions,
   ]
-}
-{%- endif %}
+}{% endif %}
 {% if cookiecutter.use_commercetools_subscription|int -%}
 resource "aws_iam_user" "ct_subscription" {
   name = "ct-{{ cookiecutter.name|slugify }}-user"
@@ -96,5 +94,4 @@ resource "commercetools_subscription" "order_created" {
     aws_sqs_queue.ct_order_created_queue,
     aws_iam_user_policy.order_created_policy,
   ]
-}
-{%- endif %}
+}{% endif %}

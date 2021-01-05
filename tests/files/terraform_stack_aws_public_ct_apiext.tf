@@ -115,7 +115,6 @@ locals {
   )
 }
 
-
 module "lambda_function" {
   source = "terraform-aws-modules/lambda/aws"
 
@@ -123,7 +122,6 @@ module "lambda_function" {
   description   = "Unit Test component"
   handler       = "src/rest/handler.handler"
   runtime       = "nodejs12.x"
-  
   memory_size   = 512
   timeout       = 10
 
@@ -141,6 +139,7 @@ module "lambda_function" {
   attach_policy_json = true
   policy_json        = data.aws_iam_policy_document.lambda_policy.json
   publish            = true
+  
   allowed_triggers = {
     APIGatewayAny = {
       service = "apigateway"
@@ -148,6 +147,7 @@ module "lambda_function" {
     }
   }
 }
+
 resource "aws_apigatewayv2_integration" "gateway" {
   api_id           = var.api_gateway
   integration_type = "AWS_PROXY"
@@ -171,7 +171,6 @@ locals {
   lambda_s3_repository = "mach-lambda-repository"
   lambda_s3_key        = "${local.component_name}-${var.component_version}.zip"
 }
-
 terraform {
   required_providers {
     commercetools = {
@@ -192,7 +191,6 @@ locals {
   }, {
     CT_ACCESS_TOKEN_SECRET_NAME = module.ct_secret.name
   })
-  
 }
 
 resource "aws_secretsmanager_secret" "component_secret" {
@@ -217,8 +215,6 @@ module "ct_secret" {
   site   = var.site
   scopes = local.ct_scopes
 }
-
-# function app specific
 variable "component_version" {
   type        = string
   description = "Version to deploy"
@@ -256,7 +252,6 @@ variable "ct_stores" {
   }))
   default = {}
 }
-
 variable "variables" {
   type        = map(string)
   description = "Generic way to pass variables to components. Some of these can also be used as environment variables."

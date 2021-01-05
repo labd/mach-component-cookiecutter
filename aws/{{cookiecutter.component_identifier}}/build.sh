@@ -7,21 +7,17 @@ BUILD_NAME=$NAME
 ARTIFACT_NAME="${NAME}.zip"
 
 package () {
-    {% if cookiecutter.language == "node" %}
-    yarn package:prod
-    {% else %}
-    # TODO
-    {% endif %}
+    {% if cookiecutter.language == "node" -%}
+    yarn package:prod{% else -%}
+    # TODO{% endif %}
 }
 
 upload () {
-    {% if cookiecutter.language == "node" %}
+    {% if cookiecutter.language == "node" -%}
     src=".serverless/{{ cookiecutter.name|slugify }}.zip"
     dest=$ARTIFACT_NAME
-    aws s3 cp $src s3://{{ cookiecutter.lambda_s3_repository }}/$dest
-    {% else %}
-    # TODO
-    {% endif %}
+    aws s3 cp $src s3://{{ cookiecutter.lambda_s3_repository }}/$dest{% else -%}
+    # TODO{% endif %}
 }
 
 version () {

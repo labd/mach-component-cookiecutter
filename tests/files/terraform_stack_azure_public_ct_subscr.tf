@@ -110,7 +110,6 @@ resource "azurerm_monitor_metric_alert" "ping" {
   depends_on = [azurerm_function_app.main]
 }
 
-
 esource "azurerm_monitor_metric_alert" "topic_order_signals_dlq" {
   name                = format("%s-topic-order-signals-dlq", var.short_name)
   resource_group_name = var.resource_group_name
@@ -184,12 +183,11 @@ resource "azurerm_monitor_metric_alert" "dlq_files_exist" {
 
   tags = var.tags
 }
-
 resource "commercetools_api_client" "main" {
   name  = format("%s_unit-test", var.name_prefix)
   scope = local.ct_scopes
 }
-# Start commercetools subscription
+
 resource "commercetools_subscription" "main" {
   key = format("%s_unit-test_order_payed", var.name_prefix)
 
@@ -213,7 +211,7 @@ resource "commercetools_subscription" "main" {
     cloud_events_version = "1.0"
   }
 }
-# End commercetools subscription
+
 
 locals {
   subscription_name     = format("%s-eg-%s-os-sub", var.name_prefix, var.short_name)
@@ -473,14 +471,11 @@ resource "azurerm_storage_account" "dlq" {
   tags = var.tags
 }
 
-
 resource "azurerm_storage_container" "container_dlq" {
   name                  = "dlq"
   storage_account_name  = azurerm_storage_account.dlq.name
   container_access_type = "private"
 }
-
-# azure stuff
 variable "short_name" {
   type        = string
   description = "Short name passed by Mull. Will not be more than 10 characters"
@@ -534,7 +529,6 @@ variable "tags" {
   description = "Additional tags (e.g. `map('BusinessUnit','XYZ')`"
 }
 
-# function app specific
 variable "component_version" {
   type        = string
   description = "Version to deploy"
@@ -572,7 +566,6 @@ variable "ct_stores" {
   }))
   default = {}
 }
-
 
 variable "variables" {
   type        = map(string)

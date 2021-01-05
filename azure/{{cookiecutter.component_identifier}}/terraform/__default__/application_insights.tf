@@ -109,8 +109,7 @@ resource "azurerm_monitor_metric_alert" "ping" {
 
   # this custom metric is only created after the function app is created...
   depends_on = [azurerm_function_app.main]
-}
-{% endif %}
+}{% endif %}
 
 {% if cookiecutter.use_commercetools_subscription|int -%}
 esource "azurerm_monitor_metric_alert" "topic_order_signals_dlq" {
@@ -185,5 +184,4 @@ resource "azurerm_monitor_metric_alert" "dlq_files_exist" {
   }
 
   tags = var.tags
-}
-{% endif %}
+}{% endif %}

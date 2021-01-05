@@ -21,10 +21,8 @@ resource "azurerm_storage_account" "dlq" {
   tags = var.tags
 }
 
-
 resource "azurerm_storage_container" "container_dlq" {
   name                  = "dlq"
   storage_account_name  = azurerm_storage_account.dlq.name
   container_access_type = "private"
-}
-{% endif %}
+}{% endif %}

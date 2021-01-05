@@ -10,17 +10,14 @@ locals {
       {% if not cookiecutter.use_commercetools_token_rotator|int -%}
       CT_CLIENT_ID   = commercetools_api_client.main.id
       CT_SCOPES      = join(",", local.ct_scopes)
-      CT_AUTH_URL    = var.ct_auth_url
-      {%- endif %}
-      {%- endif %}
+      CT_AUTH_URL    = var.ct_auth_url{% endif %}{% endif %}
 
       RELEASE                     = "${local.component_name}@${var.component_version}"
       COMPONENT_NAME              = local.component_name
       ENVIRONMENT                 = var.environment
       SITE                        = var.site
       {% if cookiecutter.sentry_project -%}
-      SENTRY_DSN                  = var.sentry_dsn
-      {%- endif %}
+      SENTRY_DSN                  = var.sentry_dsn{% endif %}
 
       AWS_XRAY_LOG_LEVEL       = "debug"
       AWS_XRAY_DEBUG_MODE      = "true"
@@ -29,7 +26,6 @@ locals {
   )
 }
 
-
 module "lambda_function" {
   source = "terraform-aws-modules/lambda/aws"
 
@@ -37,10 +33,8 @@ module "lambda_function" {
   description   = "{{ cookiecutter.description }}"
   handler       = "src/rest/handler.handler"
   {% if cookiecutter.language == "node" -%}
-  runtime       = "nodejs12.x"
-  {% elif cookiecutter.language == "python" -%}
-  runtime       = "python3.8"
-  {%- endif %}
+  runtime       = "nodejs12.x"{% elif cookiecutter.language == "python" -%}
+  runtime       = "python3.8"{% endif %}
   memory_size   = 512
   timeout       = 10
 
@@ -59,15 +53,15 @@ module "lambda_function" {
   policy_json        = data.aws_iam_policy_document.lambda_policy.json
   publish            = true
   
-  {%- if cookiecutter.use_public_api|int %}
+  {% if cookiecutter.use_public_api|int -%}
   allowed_triggers = {
     APIGatewayAny = {
       service = "apigateway"
       arn     = var.api_gateway_execution_arn
     }
-  }
-  {%- endif %}
+  }{% endif %}
 }
+
 {% if cookiecutter.use_public_api|int -%}
 resource "aws_apigatewayv2_integration" "gateway" {
   api_id           = var.api_gateway
@@ -82,5 +76,4 @@ resource "aws_apigatewayv2_route" "application" {
   api_id    = var.api_gateway
   route_key = "ANY /{{ cookiecutter.name|slugify }}/{proxy+}"
   target    = "integrations/${aws_apigatewayv2_integration.gateway.id}"
-}
-{%- endif %}
+}{% endif %}

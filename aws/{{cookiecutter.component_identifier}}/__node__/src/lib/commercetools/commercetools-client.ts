@@ -36,8 +36,7 @@ const getAccessToken = async () => {
 const getAuthMiddleware = async () => {
   if (process.env.CT_CLIENT_ID && process.env.CT_CLIENT_SECRET && process.env.CT_SCOPES) {
     {% if cookiecutter.use_commercetools_token_rotator|int -%}
-    console.warn("CT_CLIENT_ID and CT_CLIENT_SECRET for local dev only; make sure this is not used in production")
-    {% endif %}
+    console.warn("CT_CLIENT_ID and CT_CLIENT_SECRET for local dev only; make sure this is not used in production"){% endif %}
     assert(process.env.CT_AUTH_URL, 'CT_AUTH_URL missing')
     return createAuthMiddlewareForClientCredentialsFlow({
       host: process.env.CT_AUTH_URL,

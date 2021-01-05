@@ -111,7 +111,6 @@ resource "azurerm_monitor_metric_alert" "ping" {
 }
 
 
-
 data "azurerm_storage_account" "shared" {
   name                = ""
   resource_group_name = ""
@@ -284,7 +283,6 @@ resource "azurerm_storage_account" "main" {
 }
 
 
-# azure stuff
 variable "short_name" {
   type        = string
   description = "Short name passed by Mull. Will not be more than 10 characters"
@@ -338,7 +336,6 @@ variable "tags" {
   description = "Additional tags (e.g. `map('BusinessUnit','XYZ')`"
 }
 
-# function app specific
 variable "component_version" {
   type        = string
   description = "Version to deploy"
@@ -353,7 +350,6 @@ variable "site" {
   type        = string
   description = "Identifier of the site."
 }
-
 
 
 

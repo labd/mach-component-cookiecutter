@@ -5,5 +5,4 @@ terraform {
       source = "labd/commercetools"
     }
   }
-}
-{%- endif %}
+}{% endif %}

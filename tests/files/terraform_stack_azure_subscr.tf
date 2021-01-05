@@ -281,7 +281,7 @@ resource "azurerm_function_app" "main" {
   app_service_plan_id        = var.app_service_plan_id
   storage_account_name       = azurerm_storage_account.main.name
   storage_account_access_key = azurerm_storage_account.main.primary_access_key
-  app_settings               = merge(var.environment_variables, local.environment_variables, local.secret_variables, local.extra_secrets)
+  app_settings               = merge(var.variables, local.environment_variables, local.secret_variables, local.extra_secrets)
   os_type                    = "linux"
   version                    = "~3"
   https_only                 = true
@@ -506,6 +506,16 @@ variable "ct_auth_url" {
   default = ""
 }
 
+variable "ct_stores" {
+  type = map(object({
+    key       = string
+    variables = map(string)
+    secrets   = map(string)
+  }))
+  default = {}
+}
+
+
 variable "variables" {
   type        = map(string)
   description = "Generic way to pass variables to components. Some of these can also be used as environment variables."
@@ -515,10 +525,4 @@ variable "secrets" {
   type        = map(string)
   description = "Map of secret values. Will be put in the key vault."
   default     = {}
-}
-
-variable "environment_variables" {
-  type        = map(string)
-  default     = {}
-  description = "Explicit map of variables that should be put in this function's environment variables."
 }

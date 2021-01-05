@@ -73,7 +73,7 @@ resource "azurerm_function_app" "main" {
   app_service_plan_id        = var.app_service_plan_id
   storage_account_name       = azurerm_storage_account.main.name
   storage_account_access_key = azurerm_storage_account.main.primary_access_key
-  app_settings               = merge(var.environment_variables, local.environment_variables, local.secret_variables, local.extra_secrets)
+  app_settings               = merge(var.variables, local.environment_variables, local.secret_variables, local.extra_secrets)
   os_type                    = "linux"
   version                    = "~3"
   https_only                 = true

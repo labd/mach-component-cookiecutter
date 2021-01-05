@@ -82,6 +82,16 @@ variable "ct_auth_url" {
   default = ""
 }
 
+variable "ct_stores" {
+  type = map(object({
+    key       = string
+    variables = map(string)
+    secrets   = map(string)
+  }))
+  default = {}
+}
+
+
 variable "variables" {
   type        = map(string)
   description = "Generic way to pass variables to components. Some of these can also be used as environment variables."
@@ -91,10 +101,4 @@ variable "secrets" {
   type        = map(string)
   description = "Map of secret values. Will be put in the key vault."
   default     = {}
-}
-
-variable "environment_variables" {
-  type        = map(string)
-  default     = {}
-  description = "Explicit map of variables that should be put in this function's environment variables."
 }

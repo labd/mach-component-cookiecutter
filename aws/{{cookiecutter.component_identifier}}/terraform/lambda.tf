@@ -55,6 +55,7 @@ module "lambda_function" {
 
   attach_policy_json = true
   policy_json        = data.aws_iam_policy_document.lambda_policy.json
+  publish            = true
   
   {%- if cookiecutter.use_public_api|int %}
   allowed_triggers = {

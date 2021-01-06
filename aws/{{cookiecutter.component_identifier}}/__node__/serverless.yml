@@ -18,10 +18,10 @@ provider:
     {% if cookiecutter.use_commercetools|int -%}
     CT_API_URL: https://api.europe-west1.gcp.commercetools.com
     CT_AUTH_URL: https://auth.europe-west1.gcp.commercetools.com
-    CT_PROJECT_KEY: ${file(./.credentials.json):CT_PROJECT_KEY}
-    CT_CLIENT_ID: ${file(./.credentials.json):CT_CLIENT_ID}
-    CT_CLIENT_SECRET: ${file(./.credentials.json):CT_CLIENT_SECRET}
-    CT_SCOPES: ${file(./.credentials.json):CT_SCOPES}{% endif %}
+    CT_PROJECT_KEY: ${file(./.credentials.yml):CT_PROJECT_KEY}
+    CT_CLIENT_ID: ${file(./.credentials.yml):CT_CLIENT_ID}
+    CT_CLIENT_SECRET: ${file(./.credentials.yml):CT_CLIENT_SECRET}
+    CT_SCOPES: ${file(./.credentials.yml):CT_SCOPES}{% endif %}
 
 custom:
   serverless-offline:

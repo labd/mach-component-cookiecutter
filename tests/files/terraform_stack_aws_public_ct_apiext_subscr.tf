@@ -187,7 +187,7 @@ module "lambda_function" {
 
   function_name = "${var.site}-unit-test"
   description   = "Unit Test component"
-  handler       = "src/rest/handler.handler"
+  handler       = "src/http/index.handler"
   runtime       = "nodejs12.x"
   memory_size   = 512
   timeout       = 10

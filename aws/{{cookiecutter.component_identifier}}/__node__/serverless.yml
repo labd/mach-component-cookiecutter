@@ -30,7 +30,7 @@ custom:
 
 functions:
   service:
-    handler: src/rest/handler.handler
+    handler: src/http/index.handler
     events:
       - httpApi:
           method: '*'

@@ -1,7 +1,7 @@
 import Koa from 'koa'
 import bodyParser from 'koa-bodyparser'
 import cors from '@koa/cors';
-import { Sentry } from '../lib/sentry'
+import { Sentry } from '../../lib/sentry'
 import { addExtensionMethods } from '@sentry/tracing';
 
 import router from './routes'

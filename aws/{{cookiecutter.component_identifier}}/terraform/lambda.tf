@@ -31,7 +31,7 @@ module "lambda_function" {
 
   function_name = "${var.site}-{{cookiecutter.name}}"
   description   = "{{ cookiecutter.description }}"
-  handler       = "src/rest/handler.handler"
+  handler       = "src/http/index.handler"
   {% if cookiecutter.language == "node" -%}
   runtime       = "nodejs12.x"{% elif cookiecutter.language == "python" -%}
   runtime       = "python3.8"{% endif %}

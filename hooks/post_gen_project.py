@@ -52,6 +52,8 @@ def unpack(directory_pattern: str):
 
     return unpacked
 
+if os.path.exists("gitignore"):
+    shutil.move("gitignore", ".gitignore")
 
 with open(MANIFEST) as manifest_file:
     directories = [

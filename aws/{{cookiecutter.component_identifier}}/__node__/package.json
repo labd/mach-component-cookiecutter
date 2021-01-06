@@ -24,7 +24,7 @@
     "koa-bodyparser": "4.3.0",
     "koa-joi-router": "7.0.0",
     "@koa/cors": "3.1.0",
-    {% if cookiecutter.include_graphql|int -%}
+    {% if cookiecutter.include_graphql_server|int -%}
     "@apollo/federation": "0.20.7",
     "apollo-server-koa": "2.19.1",
     "apollo-server-testing": "2.19.0",

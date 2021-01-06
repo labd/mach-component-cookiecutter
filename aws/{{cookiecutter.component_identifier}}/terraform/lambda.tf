@@ -68,7 +68,7 @@ resource "aws_apigatewayv2_integration" "gateway" {
   integration_type = "AWS_PROXY"
 
   connection_type = "INTERNET"
-  description     = "GraphQL Gateway"
+  description     = "{{ cookiecutter.name }} HTTP Gateway"
   integration_uri = module.lambda_function.this_lambda_function_arn
 }
 

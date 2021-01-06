@@ -3,7 +3,6 @@ service: ${env:NAME_PREFIX,''}{{ cookiecutter.name|slugify }}
 plugins:
   - serverless-webpack
   - serverless-offline
-  - serverless-dotenv-plugin
 
 provider:
   name: aws

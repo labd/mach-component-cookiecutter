@@ -18,8 +18,6 @@ sites:
 
 components:
 - name: {{ cookiecutter.name }}
-  {% if cookiecutter.name != cookiecutter.short_name -%}
-  short_name: apiexts{% endif %}
   source: ...
   version: <git hash of version you want to release>
 ```
@@ -29,7 +27,7 @@ components:
 {% if cookiecutter.language == "node" -%}
 Run 
 
-````bash
+```bash
 $ yarn install
 ```{% endif %}
 

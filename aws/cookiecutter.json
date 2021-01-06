@@ -1,10 +1,8 @@
 {
   "language": "node",
-  "name": "example",
+  "name": "example-name",
   "description": "{{ cookiecutter.name|replace('-', ' ')|replace('_', ' ')|title }} component",
-  "short_name": "{{ cookiecutter.name|replace('-', '')|replace('_', '') }}",
   "component_identifier": "{{ cookiecutter.name|slugify }}-component",
-  "function_name": "{{ cookiecutter.name|slugify(separator='_') }}",
   "lambda_s3_repository": "",
   "use_public_api": 1,
   "use_commercetools": 1,

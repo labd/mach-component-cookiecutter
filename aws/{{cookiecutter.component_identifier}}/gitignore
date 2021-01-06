@@ -7,4 +7,4 @@ node_modules/
 coverage
 test_output
 .terraform
-.credentials.json
+.env

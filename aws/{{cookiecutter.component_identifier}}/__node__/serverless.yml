@@ -1,4 +1,5 @@
-service: ${env:NAME_PREFIX,''}{{ cookiecutter.name|slugify }}
+service: {{ cookiecutter.name|slugify }}
+useDotenv: true
 
 plugins:
   - serverless-webpack
@@ -17,11 +18,7 @@ provider:
     LOCALSTACK_URL: http://localhost:4566
     {% if cookiecutter.use_commercetools|int -%}
     CT_API_URL: https://api.europe-west1.gcp.commercetools.com
-    CT_AUTH_URL: https://auth.europe-west1.gcp.commercetools.com
-    CT_PROJECT_KEY: ${file(./.credentials.yml):CT_PROJECT_KEY}
-    CT_CLIENT_ID: ${file(./.credentials.yml):CT_CLIENT_ID}
-    CT_CLIENT_SECRET: ${file(./.credentials.yml):CT_CLIENT_SECRET}
-    CT_SCOPES: ${file(./.credentials.yml):CT_SCOPES}{% endif %}
+    CT_AUTH_URL: https://auth.europe-west1.gcp.commercetools.com{% endif %}
 
 custom:
   serverless-offline:

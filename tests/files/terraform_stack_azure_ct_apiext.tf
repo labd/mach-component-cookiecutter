@@ -264,6 +264,16 @@ resource "azurerm_function_app" "main" {
 
   depends_on = [data.external.package_exists, azurerm_key_vault_secret.secrets]
 }
+
+# see https://docs.microsoft.com/en-us/azure/azure-functions/functions-deployment-technologies#trigger-syncing
+# this updates the functionapp in case of any changes.
+data "external" "sync_trigger" {
+  program = [
+    "bash", 
+    "-c", 
+    "az rest --method post --uri 'https://management.azure.com/subscriptions/${var.subscription_id}/resourceGroups/${var.resource_group_name}/providers/Microsoft.Web/sites/${azurerm_function_app.main.name}/syncfunctiontriggers?api-version=2016-08-01'"
+  ]
+}
 resource "azurerm_key_vault" "main" {
   name                        = replace(format("%s-kv-%s", var.name_prefix, var.short_name), "-", "")
   location                    = var.resource_group_location

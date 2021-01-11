@@ -210,13 +210,13 @@ module "lambda_function" {
   allowed_triggers = {
     APIGatewayAny = {
       service = "apigateway"
-      arn     = var.api_gateway_execution_arn
+      arn     = var.endpoint_main.api_gateway_execution_arn
     }
   }
 }
 
 resource "aws_apigatewayv2_integration" "gateway" {
-  api_id           = var.api_gateway
+  api_id           = var.endpoint_main.api_gateway_id
   integration_type = "AWS_PROXY"
 
   connection_type = "INTERNET"
@@ -225,9 +225,35 @@ resource "aws_apigatewayv2_integration" "gateway" {
 }
 
 resource "aws_apigatewayv2_route" "application" {
-  api_id    = var.api_gateway
+  api_id    = var.endpoint_main.api_gateway_id
   route_key = "ANY /unit-test/{proxy+}"
   target    = "integrations/${aws_apigatewayv2_integration.gateway.id}"
+}
+
+module "subscription_function" {
+  source  = "terraform-aws-modules/lambda/aws"
+
+  function_name = "${var.site}-unit-test-subscription"
+  description   = "Unit Test component commercetools subscriptions "
+  handler       = "src/subscriptions/index.handler"
+  runtime       = "nodejs12.x"
+
+  memory_size = 512
+  timeout     = 10
+
+  environment_variables = local.environment_variables
+
+  create_package = false
+  s3_existing_package = {
+    bucket = local.lambda_s3_repository
+    key    = local.lambda_s3_key
+  }
+
+  attach_tracing_policy = true
+  tracing_mode          = "Active"
+
+  attach_policy_json = true
+  policy_json        = data.aws_iam_policy_document.lambda_policy.json
 }
 locals {
   ct_scopes = formatlist("%s:%s", [
@@ -300,9 +326,9 @@ resource "aws_lambda_event_source_mapping" "sqs_lambda_event_mapping_ct_order_cr
   batch_size       = 1
   event_source_arn = aws_sqs_queue.ct_order_created_queue.arn
   enabled          = true
-  function_name    = module.lambda_function.this_lambda_function_arn
+  function_name    = module.subscription_function.this_lambda_function_arn
 
-  depends_on = [module.lambda_function]
+  depends_on = [module.subscription_function]
 }
 
 variable "component_version" {
@@ -353,12 +379,10 @@ variable "secrets" {
 }
 
 
-variable "api_gateway" {
-  type        = string
-  description = "API Gateway to publish in"
-}
-
-variable "api_gateway_execution_arn" {
-  type        = string
-  description = "API Gateway API Execution ARN"
+variable "endpoint_main" {
+  type = object({
+    url                       = string
+    api_gateway_id            = string
+    api_gateway_execution_arn = string
+  })
 }

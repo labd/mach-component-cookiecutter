@@ -148,15 +148,18 @@ locals {
   )
 }
 
-module "lambda_function" {
-  source = "terraform-aws-modules/lambda/aws"
 
-  function_name = "${var.site}-unit-test"
-  description   = "Unit Test component"
-  handler       = "src/http/index.handler"
+
+module "subscription_function" {
+  source  = "terraform-aws-modules/lambda/aws"
+
+  function_name = "${var.site}-unit-test-subscription"
+  description   = "Unit Test component commercetools subscriptions "
+  handler       = "src/subscriptions/index.handler"
   runtime       = "nodejs12.x"
-  memory_size   = 512
-  timeout       = 10
+
+  memory_size = 512
+  timeout     = 10
 
   environment_variables = local.environment_variables
 
@@ -171,12 +174,7 @@ module "lambda_function" {
 
   attach_policy_json = true
   policy_json        = data.aws_iam_policy_document.lambda_policy.json
-  publish            = true
-  
-  
 }
-
-
 locals {
   ct_scopes = formatlist("%s:%s", [
     "manage_orders",
@@ -248,9 +246,9 @@ resource "aws_lambda_event_source_mapping" "sqs_lambda_event_mapping_ct_order_cr
   batch_size       = 1
   event_source_arn = aws_sqs_queue.ct_order_created_queue.arn
   enabled          = true
-  function_name    = module.lambda_function.this_lambda_function_arn
+  function_name    = module.subscription_function.this_lambda_function_arn
 
-  depends_on = [module.lambda_function]
+  depends_on = [module.subscription_function]
 }
 
 variable "component_version" {

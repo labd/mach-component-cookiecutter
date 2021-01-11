@@ -144,6 +144,8 @@ module "lambda_function" {
 }
 
 
+
+
 locals {
   ct_scopes = formatlist("%s:%s", [
     "manage_orders",

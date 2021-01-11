@@ -81,33 +81,7 @@ locals {
   )
 }
 
-module "lambda_function" {
-  source = "terraform-aws-modules/lambda/aws"
 
-  function_name = "${var.site}-unit-test"
-  description   = "Unit Test component"
-  handler       = "src/http/index.handler"
-  runtime       = "nodejs12.x"
-  memory_size   = 512
-  timeout       = 10
-
-  environment_variables = local.environment_variables
-
-  create_package = false
-  s3_existing_package = {
-    bucket = local.lambda_s3_repository
-    key    = local.lambda_s3_key
-  }
-
-  attach_tracing_policy = true
-  tracing_mode          = "Active"
-
-  attach_policy_json = true
-  policy_json        = data.aws_iam_policy_document.lambda_policy.json
-  publish            = true
-  
-  
-}
 
 
 locals {

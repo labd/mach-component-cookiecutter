@@ -103,13 +103,13 @@ module "lambda_function" {
   allowed_triggers = {
     APIGatewayAny = {
       service = "apigateway"
-      arn     = var.api_gateway_execution_arn
+      arn     = var.endpoint_main.api_gateway_execution_arn
     }
   }
 }
 
 resource "aws_apigatewayv2_integration" "gateway" {
-  api_id           = var.api_gateway
+  api_id           = var.endpoint_main.api_gateway_id
   integration_type = "AWS_PROXY"
 
   connection_type = "INTERNET"
@@ -118,10 +118,12 @@ resource "aws_apigatewayv2_integration" "gateway" {
 }
 
 resource "aws_apigatewayv2_route" "application" {
-  api_id    = var.api_gateway
+  api_id    = var.endpoint_main.api_gateway_id
   route_key = "ANY /unit-test/{proxy+}"
   target    = "integrations/${aws_apigatewayv2_integration.gateway.id}"
 }
+
+
 locals {
   
   component_name       = "unit-test"
@@ -186,12 +188,10 @@ variable "secrets" {
 }
 
 
-variable "api_gateway" {
-  type        = string
-  description = "API Gateway to publish in"
-}
-
-variable "api_gateway_execution_arn" {
-  type        = string
-  description = "API Gateway API Execution ARN"
+variable "endpoint_main" {
+  type = object({
+    url                       = string
+    api_gateway_id            = string
+    api_gateway_execution_arn = string
+  })
 }

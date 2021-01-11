@@ -50,12 +50,10 @@ variable "sentry_dsn" {
   default = ""
 }{% endif %}
 {% if cookiecutter.use_public_api|int %}
-variable "api_gateway" {
-  type        = string
-  description = "API Gateway to publish in"
-}
-
-variable "api_gateway_execution_arn" {
-  type        = string
-  description = "API Gateway API Execution ARN"
+variable "endpoint_main" {
+  type = object({
+    url                       = string
+    api_gateway_id            = string
+    api_gateway_execution_arn = string
+  })
 }{% endif %}

@@ -1,4 +1,4 @@
-# {{ cookiecutter.name|slugify }}-component
+# {{ cookiecutter.component_identifier }}
 
 {{ cookiecutter.description }}
 
@@ -19,10 +19,20 @@ sites:
 components:
 - name: {{ cookiecutter.name }}
   source: ...
+  {% if cookiecutter.use_public_api|int -%}
+  endpoints:
+    main: ...
+  {% endif -%}
   version: <git hash of version you want to release>
 ```
+{% if cookiecutter.use_public_api|int %}
+## Required endpoints
 
-## Installation
+- **`main`**<br>
+  Description
+{% endif %}
+
+# Getting started
 
 {% if cookiecutter.language == "node" -%}
 Run 

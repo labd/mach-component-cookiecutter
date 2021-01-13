@@ -1,4 +1,4 @@
-# {{ cookiecutter.name }} component
+# {{ cookiecutter.component_identifier }}
 
 {{ cookiecutter.description }}
 
@@ -20,10 +20,20 @@ components:
 - name: {{ cookiecutter.name }}
   {% if cookiecutter.name != cookiecutter.short_name %}short_name: apiexts{% endif %}
   source: ...
+  {% if cookiecutter.use_public_api|int -%}
+  endpoints:
+    main: ...
+  {% endif -%}
   version: <git hash of version you want to release>
 ```
+{% if cookiecutter.use_public_api|int %}
+## Required endpoints
 
-# Installation
+- **`main`**<br>
+  Description
+{% endif %}
+
+# Getting started
 
 Create a virtualenv and install the dev dependencies.
 
@@ -35,7 +45,7 @@ Make sure you have the following installed:
 - azure functions core tools: https://github.com/Azure/azure-functions-core-tools
 
 
-# Code style
+## Code style
 
 The Python source code should be formatted using [black](https://github.com/python/black) and isort.
 You can use `make format` to run them.
@@ -53,7 +63,7 @@ The pre-commit config (`.pre-commit-config.yaml`) currently runs black and
 flake8.
 
 
-# Development
+## Development
 
 You'll need to have the Azure functions core tools installed to be able to run the function locally;
 

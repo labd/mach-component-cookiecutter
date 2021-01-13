@@ -8,7 +8,7 @@ Use the following attributes to configure this component in MACH:
 
 ```yaml
 sites:
-  - identifier: some site
+  - identifier: some-site
     components:
     - name: {{ cookiecutter.name }}
       variables:

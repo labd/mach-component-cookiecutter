@@ -1,5 +1,4 @@
 import ForkTsCheckerWebpackPlugin from 'fork-ts-checker-webpack-plugin';
-import nodeExternals from 'webpack-node-externals';
 import serverlessWebpack from 'serverless-webpack';
 import TsconfigPathsPlugin from 'tsconfig-paths-webpack-plugin';
 import { Configuration, DefinePlugin, WebpackPluginInstance } from 'webpack';
@@ -7,7 +6,7 @@ import { Configuration, DefinePlugin, WebpackPluginInstance } from 'webpack';
 const config: Configuration = {
  mode: serverlessWebpack.lib.webpack.isLocal ? 'development' : 'production',
   entry: serverlessWebpack.lib.entries,
-  externals: [nodeExternals()],
+  externals: [{'aws-sdk': 'commonjs aws-sdk'}],
   devtool: serverlessWebpack.lib.webpack.isLocal ? 'inline-cheap-module-source-map' : 'source-map',
   target: 'node',
   node: false,

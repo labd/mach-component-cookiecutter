@@ -4,13 +4,13 @@
 #
 #    pip-compile
 #
-azure-functions-worker==1.1.6  # via -r requirements.in
-azure-functions==1.4.0    # via -r requirements.in
+azure-functions-worker==1.1.9  # via -r requirements.in
+azure-functions==1.5.0    # via -r requirements.in
 certifi==2020.6.20        # via requests
 chardet==3.0.4            # via requests
-commercetools==11.0.0     # via -r requirements.in
-grpcio-tools==1.26.0      # via azure-functions-worker
-grpcio==1.26.0            # via azure-functions-worker, grpcio-tools
+commercetools==13.0.0     # via -r requirements.in
+grpcio-tools==1.33.2      # via azure-functions-worker
+grpcio==1.33.2            # via azure-functions-worker, grpcio-tools
 idna==2.10                # via requests
 marshmallow-enum==1.5.1   # via commercetools
 marshmallow==3.8.0        # via commercetools, marshmallow-enum

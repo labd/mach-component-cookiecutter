@@ -1,14 +1,13 @@
 .DS_Store
 build/
 dist/
-.mypy_cache/
-.pytest_cache/
-__pycache__/
-*.mo
+
 .python_packages/
+node_modules
 *.zip
 local.settings.json
 
+# Test files
 htmlcov/
 reports/
 .coverage
@@ -18,3 +17,20 @@ coverage.xml
 .vscode/
 .idea/
 local_env.sh
+
+# Python Environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Byte-compiled / optimized / DLL files
+.mypy_cache/
+.pytest_cache/
+__pycache__/
+*.py[cod]
+*$py.class
+*.mo

@@ -5,8 +5,9 @@ from typing import List, Tuple
 import pytest
 
 
-def test_run_aws_node(project):
-    cwd = project.create("aws", {"language": "node", "name": "unit-test"})
+@pytest.mark.parametrize("cloud", ["aws", "azure"])
+def test_run_node(project, cloud):
+    cwd = project.create(cloud, {"language": "node", "name": "unit-test"})
     subprocess.run(["yarn", "install"], cwd=cwd, check=True)
     subprocess.run(["yarn", "test"], cwd=cwd, check=True)
 

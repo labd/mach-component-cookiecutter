@@ -24,9 +24,14 @@ local.settings.json
 
 terraform/
 tests/
+test
 build/
 reports/
 pip-cache/
+
 __pycache__
 __pycache__/*
 **/__pycache__/*
+
+*.js.map
+*.ts

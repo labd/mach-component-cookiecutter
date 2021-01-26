@@ -67,7 +67,7 @@ resource "azurerm_application_insights_web_test" "ping" {
   configuration = <<XML
 <WebTest Name="PingTest" Enabled="True" Timeout="0" Proxy="default" StopOnError="False" RecordedResultFile="">
   <Items>
-    <Request Method="GET" Version="1.1" Url="https://${azurerm_function_app.main.name}.azurewebsites.net/unit_test/healthchecks?code=${var.short_name}" ThinkTime="0" Timeout="300" ParseDependentRequests="True" FollowRedirects="True" RecordResult="True" Cache="False" ResponseTimeGoal="0" Encoding="utf-8" ExpectedHttpStatusCode="200" ExpectedResponseUrl="" ReportingName="" IgnoreHttpStatusCode="False" />
+    <Request Method="GET" Version="1.1" Url="https://${azurerm_function_app.main.name}.azurewebsites.net/ct_api_extension/healthchecks?code=${var.short_name}" ThinkTime="0" Timeout="300" ParseDependentRequests="True" FollowRedirects="True" RecordResult="True" Cache="False" ResponseTimeGoal="0" Encoding="utf-8" ExpectedHttpStatusCode="200" ExpectedResponseUrl="" ReportingName="" IgnoreHttpStatusCode="False" />
   </Items>
 </WebTest>
 XML
@@ -112,7 +112,7 @@ resource "azurerm_monitor_metric_alert" "ping" {
 
 
 resource "commercetools_api_client" "main" {
-  name  = format("%s_unit-test", var.name_prefix)
+  name  = "${var.name_prefix}_unit-test"
   scope = local.ct_scopes
 }
 
@@ -157,7 +157,7 @@ resource "commercetools_api_extension" "main" {
 
   destination = {
     type                 = "http"
-    url                  = "https://${azurerm_function_app.main.name}.azurewebsites.net/unit_test"
+    url                  = "https://${azurerm_function_app.main.name}.azurewebsites.net/ct_subscription"
     azure_authentication = local.function_app_key
   }
 

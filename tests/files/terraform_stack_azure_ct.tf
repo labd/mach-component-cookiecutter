@@ -51,7 +51,7 @@ resource "azurerm_monitor_metric_alert" "exceptions" {
 
 
 resource "commercetools_api_client" "main" {
-  name  = format("%s_unit-test", var.name_prefix)
+  name  = "${var.name_prefix}_unit-test"
   scope = local.ct_scopes
 }
 

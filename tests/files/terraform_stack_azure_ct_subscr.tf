@@ -123,12 +123,12 @@ resource "azurerm_monitor_metric_alert" "dlq_files_exist" {
   tags = var.tags
 }
 resource "commercetools_api_client" "main" {
-  name  = format("%s_unit-test", var.name_prefix)
+  name  = "${var.name_prefix}_unit-test"
   scope = local.ct_scopes
 }
 
 resource "commercetools_subscription" "main" {
-  key = format("%s_unit-test_order_payed", var.name_prefix)
+  key = "${var.name_prefix}_order_payed"
 
   destination = {
     type       = "azure_eventgrid"

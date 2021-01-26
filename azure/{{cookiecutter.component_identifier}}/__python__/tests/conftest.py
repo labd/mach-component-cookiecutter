@@ -21,6 +21,7 @@ def functionapp_env(monkeypatch):
     Setup to mimic function app environment
     """
     monkeypatch.setenv("SITE", "nl-unittest")
+    {% if cookiecutter.use_public_api|int %}monkeypatch.setenv("FRONTDOOR_ID", "unittest-frontdoor-id"){% endif %}
     monkeypatch.setenv("CTP_PROJECT_KEY", "nl-unittest")
     monkeypatch.setenv("CTP_CLIENT_ID", "foo")
     monkeypatch.setenv("CTP_CLIENT_SECRET", "foo")

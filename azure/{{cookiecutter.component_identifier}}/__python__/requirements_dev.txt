@@ -2,6 +2,7 @@
 pytest==5.4.1
 pytest-cov==2.8.1
 pytest-mock==3.0.0
+{% if cookiecutter.use_public_api %}pytest-flask==1.0.0{% endif %}
 isort
 flake8
 flake8-blind-except

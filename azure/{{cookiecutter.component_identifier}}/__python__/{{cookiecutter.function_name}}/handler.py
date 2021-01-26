@@ -1,7 +1,7 @@
 from azure import functions as func
 from sentry_sdk.integrations.flask import FlaskIntegration
 from shared.sentry import init_sentry
-from .rest.api import application
+from .rest import application
 
 
 # This signature is type checked by Azure, so don't mess with it.

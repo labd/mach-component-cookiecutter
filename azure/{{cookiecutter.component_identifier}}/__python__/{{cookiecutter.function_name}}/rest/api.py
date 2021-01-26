@@ -1,56 +1,33 @@
-import logging
 import os
 
-from commercetools import CommercetoolsError
-from flask import Flask, abort, jsonify, request
-from flask.json import JSONEncoder
-from flask_cors import CORS
-from flask_restx import Api, Resource
-from werkzeug.middleware.dispatcher import DispatcherMiddleware
+from flask import jsonify
+from flask_restx import Resource, reqparse
 
-logger = logging.getLogger(__name__)
-env = os.environ.get
-app = Flask(__name__)
-
-CORS(app)
-api = Api(app)
-
-ns = api.namespace("{{ cookiecutter.function_name }}", description="REST operations")
-
-# Just listen to all the possible paths (easier local debugging).
-# On Azure it will run behind Frontdoor, which will be /{{ cookiecutter.name }}/{{ cookiecutter.function_name }}
-application = DispatcherMiddleware(
-    api.app, {"/{{ cookiecutter.name }}/{{ cookiecutter.function_name }}": api.app, "/{{ cookiecutter.function_name }}": api.app}
-)
-
-@app.before_request
-def validate_frontdoor_header():
-    """Validate requests originated from our Frontdoor instance."""
-    if request.endpoint == "healthchecks":
-        return
-
-    if "X-Azure-FDID" not in request.headers:
-        abort(403)
-
-    if env("FRONTDOOR_ID") != request.headers["X-Azure-FDID"]:
-        abort(403)
+from .base import api, app, ns
 
 
 @app.route("/healthchecks")
 def healthchecks() -> str:
-    return jsonify({"status": "ok", "version": env("COMPONENT_VERSION")})
+    return jsonify({"status": "ok", "version": os.environ.get("COMPONENT_VERSION")})
 
 
-@api.errorhandler(CommercetoolsError)
-def handle_ct_error(error: CommercetoolsError):
-    app.logger.info("Handling CT error: %s", str(error))
+some_parser = reqparse.RequestParser()
 
-    conf = errors.get_ct_error_config(error)
-    if conf.propagate:
-        app.logger.exception(str(error))
+some_parser.add_argument(
+    "order_number", type=str, help="The commercetools order number", required=True
+)
+some_parser.add_argument(
+    "message",
+    type=str,
+    help="Some message",
+    required=True,
+)
 
-    msg = "There was a problem with commercetools"
-    return (
-        {"message": msg, "details": str(error), "code": conf.code},
-        conf.status_code or error.response.status_code,
-    )
+
+@api.route("/some-endpoint")
+class SomeEndpoint(Resource):
+    @ns.expect(some_parser)
+    def post(self):
+        args = some_parser.parse_args()
+        app.logger.info("Received input: %s", str(args))
+        return args

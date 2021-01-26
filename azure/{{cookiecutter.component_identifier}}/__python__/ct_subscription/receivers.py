@@ -8,7 +8,6 @@ from commercetools.exceptions import CommercetoolsError
 
 
 from .base import MessageReceiver
-from . import template
 from .exceptions import NotificationException
 
 logger = logging.getLogger(__name__)

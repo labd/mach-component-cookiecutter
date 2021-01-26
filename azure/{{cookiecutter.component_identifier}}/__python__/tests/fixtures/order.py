@@ -1,4 +1,7 @@
-def get_order_create_data():
+import pytest
+
+@pytest.fixture
+def order_create_data():
     return {
         "action": "Create",
         "resource": {

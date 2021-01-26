@@ -17,7 +17,7 @@ def test_run_azure_python(project, monkeypatch):
     subprocess.run(["python", "-m", "venv", ".env"], cwd=cwd, check=True)
     for k, v in source(os.path.join(cwd, ".env/bin/activate")):
         monkeypatch.setenv(k, v)
-
+    subprocess.run(["pip-compile"], cwd=cwd, check=True, stdout=subprocess.PIPE)
     subprocess.run(["make", "install"], cwd=cwd, check=True, stdout=subprocess.PIPE)
     result = subprocess.run(
         ["pytest", "tests", "--tb=no"], cwd=cwd, stdout=subprocess.PIPE

@@ -3,7 +3,7 @@ from unittest.mock import Mock
 
 from azure import functions as func
 
-from {{ cookiecutter.function_name }}.handler import main
+from ct_api_extension.handler import main
 from tests.fixtures import get_order_create_data
 
 
@@ -11,7 +11,7 @@ def test_order_create_sets_order_number(commercetools_api):
     event_data = get_order_create_data()
     body = json.dumps(event_data).encode("UTF-8")
     azure_request = func.HttpRequest(
-        method="POST", body=body, url="http://localhost/{{ cookiecutter.function_name }}"
+        method="POST", body=body, url="http://localhost/ct_api_extension"
     )
     mock_context = Mock()
 

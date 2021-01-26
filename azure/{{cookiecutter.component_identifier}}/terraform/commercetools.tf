@@ -1,11 +1,11 @@
 resource "commercetools_api_client" "main" {
-  name  = format("%s_{{ cookiecutter.name|slugify }}", var.name_prefix)
+  name  = "${var.name_prefix}_{{ cookiecutter.name|slugify }}"
   scope = local.ct_scopes
 }
 
 {% if cookiecutter.use_commercetools_subscription|int -%}
 resource "commercetools_subscription" "main" {
-  key = format("%s_{{ cookiecutter.function_name|slugify }}_order_payed", var.name_prefix)
+  key = "${var.name_prefix}_order_payed"
 
   destination = {
     type       = "azure_eventgrid"
@@ -68,7 +68,7 @@ resource "commercetools_api_extension" "main" {
 
   destination = {
     type                 = "http"
-    url                  = "https://${azurerm_function_app.main.name}.azurewebsites.net/{{ cookiecutter.function_name }}"
+    url                  = "https://${azurerm_function_app.main.name}.azurewebsites.net/ct_subscription"
     azure_authentication = local.function_app_key
   }
 

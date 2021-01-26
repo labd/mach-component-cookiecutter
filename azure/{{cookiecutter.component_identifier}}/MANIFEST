@@ -2,3 +2,7 @@ __{{ cookiecutter.language }}__
 {% if cookiecutter.use_commercetools_subscription|int -%}terraform/__subscription__{% endif %}
 !terraform/__*
 {% if not cookiecutter.use_commercetools|int -%}!terraform/commercetools.tf{% endif %}
+
+{% if not cookiecutter.use_commercetools_api_extension|int -%}!ct_api_extension{% endif %}
+{% if not cookiecutter.use_commercetools_subscription|int -%}!ct_subscription{% endif %}
+{% if not cookiecutter.use_public_api|int -%}!{{ cookiecutter.function_name }}{% endif %}

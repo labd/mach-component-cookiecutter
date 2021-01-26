@@ -1,3 +1,10 @@
 azure-functions==1.5.0
 azure-functions-worker==1.1.9
 commercetools==13.0.0
+sentry-sdk==0.19.5
+blinker==1.4
+{% if cookiecutter.use_public_api %}
+flask==1.1.2
+flask-restx==0.2.0
+flask-cors==3.0.10
+{% endif %}

@@ -1,32 +1,18 @@
-.PHONY: all version
+.PHONY: all
 
-ifdef GIT_VERSION
-VERSION := $(GIT_VERSION)
-else
-VERSION := $(shell git rev-parse --short HEAD 2>/dev/null || echo "dev" )
-endif
-# shorter name because of azure
-NAME := {{ cookiecutter.short_name }}-$(VERSION)
-ARTIFACT_NAME := $(NAME).zip
 WORKSPACE := $(shell pwd)
-BASENAME := $(shell basename $(CURDIR))
-LANGUAGE := "en"
-
-version:
-	@echo "Version: '${VERSION}'"
-	@echo "Name: '${NAME}'"
-	@echo "Artifect name: '${ARTIFACT_NAME}'"
 
 install:
 	pip install -r requirements_dev.txt
 
+version:
+	./build version
+
 pack:
-	mkdir -p build
-	func pack --build-native-deps --python
-	mv $(BASENAME).zip build/$(ARTIFACT_NAME)
+	./build.sh package
 
 upload:
-	./azure-upload.sh $(ARTIFACT_NAME)
+	./build.sh upload
 
 clean: clean-lambda-package
 	rm -rf $(WORKSPACE)/.python_packages

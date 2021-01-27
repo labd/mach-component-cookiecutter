@@ -9,7 +9,10 @@
 .dockerignore
 .gitignore
 .pytest_cache
+jest.*
+tsconfig.json
 
+.gitlab-ci.yml
 Jenkinsfile
 Makefile
 Dockerfile
@@ -17,10 +20,10 @@ mypy.ini
 requirements.in
 requirements_dev.txt
 README.md
-azure-upload.sh
+build.sh
 *.zip
 *.tf
-local.settings.json
+local.settings.*
 
 terraform/
 tests/
@@ -34,4 +37,4 @@ __pycache__/*
 **/__pycache__/*
 
 *.js.map
-*.ts
+**/*.ts

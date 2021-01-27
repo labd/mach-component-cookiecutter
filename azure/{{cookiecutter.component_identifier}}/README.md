@@ -18,7 +18,6 @@ sites:
 
 components:
 - name: {{ cookiecutter.name }}
-  {% if cookiecutter.name != cookiecutter.short_name %}short_name: apiexts{% endif %}
   source: ...
   {% if cookiecutter.use_public_api|int -%}
   endpoints:

@@ -233,7 +233,7 @@ data "azurerm_storage_account_blob_container_sas" "code_access" {
 }
 
 locals {
-  package_name = format("unittest-%s.zip", var.component_version)
+  package_name = "unit-test-${var.component_version}.zip"
 }
 
 # Check if the version really exists

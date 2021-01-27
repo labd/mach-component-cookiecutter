@@ -1,8 +1,8 @@
 #!/bin/bash
 
 VERSION=$(git rev-parse --short HEAD 2>/dev/null || echo "dev" )
-BASENAME={{ cookiecutter.short_name|slugify }}
-NAME=$BASENAME-$VERSION
+BASENAME=$(basename $PWD)
+NAME={{ cookiecutter.name|slugify }}-$VERSION
 BUILD_NAME=$NAME
 ARTIFACT_NAME="${NAME}.zip"
 
@@ -14,7 +14,7 @@ package () {
     {% else -%}
     mkdir -p build
 	func pack --build-native-deps --python
-	mv $(BASENAME).zip build/$(ARTIFACT_NAME){% endif %}
+	mv ${BASENAME}.zip build/${ARTIFACT_NAME}{% endif %}
 }
 
 upload () {

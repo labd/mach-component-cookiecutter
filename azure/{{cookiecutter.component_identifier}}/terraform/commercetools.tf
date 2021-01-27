@@ -68,7 +68,7 @@ resource "commercetools_api_extension" "main" {
 
   destination = {
     type                 = "http"
-    url                  = "https://${azurerm_function_app.main.name}.azurewebsites.net/ct_subscription"
+    url                  = "https://${azurerm_function_app.main.name}.azurewebsites.net/ct_api_extension"
     azure_authentication = local.function_app_key
   }
 

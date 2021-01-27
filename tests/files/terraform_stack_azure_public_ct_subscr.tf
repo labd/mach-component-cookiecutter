@@ -488,7 +488,7 @@ resource "azurerm_storage_container" "container_dlq" {
 }
 variable "short_name" {
   type        = string
-  description = "Short name passed by Mull. Will not be more than 10 characters"
+  description = "Short name passed by MACH. Will not be more than 10 characters"
 }
 
 variable "name_prefix" {

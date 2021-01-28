@@ -2,7 +2,7 @@ service: {{ cookiecutter.name|slugify }}
 useDotenv: true
 
 plugins:
-  - serverless-webpack
+  - serverless-esbuild
   - serverless-offline
 
 provider:
@@ -23,10 +23,12 @@ provider:
 custom:
   serverless-offline:
     noPrependStageInUrl: true
-  webpack:
-    webpackConfig: 'webpack.config.ts'
-    packager: 'yarn'
-    includeModules: true
+  esbuild:
+    bundle: true
+    minify: true
+    target: node12
+    platform: node
+    sourcemap: true
 
 functions:
   service:

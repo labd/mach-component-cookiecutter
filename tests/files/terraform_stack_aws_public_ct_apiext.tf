@@ -35,6 +35,7 @@ resource "commercetools_api_extension" "main" {
   ]
 }
 
+
 data "aws_iam_policy_document" "lambda_policy" {
   statement {
     actions = [

@@ -83,12 +83,13 @@ resource "commercetools_subscription" "order_created" {
   }
 
   depends_on = [
-    aws_iam_user.ct_subscription_user,
+    aws_iam_user.ct_subscription,
     aws_iam_access_key.ct_subscription,
     aws_sqs_queue.ct_order_created_queue,
     aws_iam_user_policy.order_created_policy,
   ]
 }
+
 data "aws_iam_policy_document" "lambda_policy" {
   statement {
     actions = [

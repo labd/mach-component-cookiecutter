@@ -1,13 +1,11 @@
-import router from 'koa-joi-router'
-import { healthCheckValidator, healthcheck } from './healthcheck'
+import Router from '@koa/router'
+import { DefaultState, Context } from 'koa'
+import { healthcheck } from './healthcheck'
 
-const privateRouter = router()
-
-privateRouter.route({
-  method: 'get',
-  path: `/${process.env.COMPONENT_NAME}/healthcheck`,
-  validate: healthCheckValidator,
-  handler: healthcheck,
+const router = new Router<DefaultState, Context>({
+  prefix: `/${process.env.COMPONENT_NAME}`,
 })
 
-export default privateRouter
+router.get('/healthcheck', healthcheck)
+
+export default router

@@ -1,5 +1,5 @@
-import AWS from 'aws-sdk';
 import assert from 'assert';
+import AWS from 'aws-sdk';
 
 assert(
   process.env.AWS_REGION,

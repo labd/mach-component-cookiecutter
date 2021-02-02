@@ -1,6 +1,5 @@
 import assert from 'assert';
 import fetch from 'node-fetch';
-
 import { ByProjectKeyRequestBuilder } from '@commercetools/platform-sdk/dist/generated/client/by-project-key-request-builder';
 import { createApiBuilderFromCtpClient } from '@commercetools/platform-sdk';
 import { createClient } from '@commercetools/sdk-client';

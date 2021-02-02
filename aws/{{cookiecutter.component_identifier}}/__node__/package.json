@@ -11,6 +11,7 @@
     "tsc": "tsc --noEmit -p ."
   },
   "dependencies": {
+    "aws-lambda": "1.0.6",
     {% if cookiecutter.use_commercetools|int -%}
     "@commercetools/platform-sdk": "1.7.0",
     "@commercetools/sdk-auth": "3.0.10",

@@ -2,7 +2,7 @@ service: {{ cookiecutter.name|slugify }}
 useDotenv: true
 
 plugins:
-  - serverless-esbuild
+  - serverless-webpack
   - serverless-offline
 
 provider:

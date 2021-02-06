@@ -23,12 +23,10 @@ provider:
 custom:
   serverless-offline:
     noPrependStageInUrl: true
-  esbuild:
-    bundle: true
-    minify: true
-    target: node12
-    platform: node
-    sourcemap: true
+  webpack:
+    webpackConfig: 'webpack.config.ts'
+    packager: 'yarn'
+    includeModules: true
 
 functions:
   service:

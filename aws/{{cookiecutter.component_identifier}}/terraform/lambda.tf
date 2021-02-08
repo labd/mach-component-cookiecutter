@@ -13,11 +13,16 @@ locals {
       CT_AUTH_URL    = var.ct_auth_url{% endif %}{% endif %}
 
       RELEASE                     = "${local.component_name}@${var.component_version}"
+      VERSION                     = var.component_version
       COMPONENT_NAME              = local.component_name
       ENVIRONMENT                 = var.environment
       SITE                        = var.site
       {% if cookiecutter.sentry_project -%}
       SENTRY_DSN                  = var.sentry_dsn{% endif %}
+
+      {% if cookiecutter.use_commercetools_api_extension|int -%}
+      ORDER_PREFIX                = lookup(var.variables, "ORDER_PREFIX", "")
+      INITIAL_ORDER_NUMBER        = lookup(var.variables, "INITIAL_ORDER_NUMBER", 0){% endif %}
 
       AWS_XRAY_LOG_LEVEL       = "debug"
       AWS_XRAY_DEBUG_MODE      = "true"
@@ -26,7 +31,7 @@ locals {
   )
 }
 
-{% if cookiecutter.use_public_api|int or cookiecutter.use_commercetools_api_extension|int -%}
+{% if cookiecutter.use_public_api|int -%}
 module "lambda_function" {
   source = "terraform-aws-modules/lambda/aws"
 
@@ -79,12 +84,41 @@ resource "aws_apigatewayv2_route" "application" {
   target    = "integrations/${aws_apigatewayv2_integration.gateway.id}"
 }{% endif %}{% endif %}
 
+{% if cookiecutter.use_commercetools_api_extension|int -%}
+module "extension_function" {
+  source = "terraform-aws-modules/lambda/aws"
+
+  function_name = "${var.site}-{{cookiecutter.name}}-extension"
+  description   = "{{ cookiecutter.description }} commercetools api extension"
+  handler       = "src/extensions/index.handler"
+  runtime       = "nodejs12.x"
+  
+  memory_size   = 512
+  timeout       = 10
+
+  environment_variables = local.environment_variables
+
+  create_package = false
+  s3_existing_package = {
+    bucket = local.lambda_s3_repository
+    key    = local.lambda_s3_key
+  }
+
+  attach_tracing_policy = true
+  tracing_mode          = "Active"
+
+  attach_policy_json = true
+  policy_json        = data.aws_iam_policy_document.lambda_policy.json
+  publish            = true
+}
+{% endif %}
+
 {% if cookiecutter.use_commercetools_subscription|int -%}
 module "subscription_function" {
   source  = "terraform-aws-modules/lambda/aws"
 
   function_name = "${var.site}-{{cookiecutter.name}}-subscription"
-  description   = "{{ cookiecutter.description }} commercetools subscriptions "
+  description   = "{{ cookiecutter.description }} commercetools subscriptions"
   handler       = "src/subscriptions/index.handler"
   runtime       = "nodejs12.x"
 
@@ -104,4 +138,5 @@ module "subscription_function" {
 
   attach_policy_json = true
   policy_json        = data.aws_iam_policy_document.lambda_policy.json
+  publish            = true
 }{% endif %}

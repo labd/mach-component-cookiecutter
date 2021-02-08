@@ -18,3 +18,6 @@ process.env.CT_API_URL = 'https://localhost'
 process.env.CT_AUTH_URL = 'https://localhost'
 process.env.AWS_REGION = 'eu-central-1'
 process.env.COMPONENT_NAME = '{{ cookiecutter.name|slugify }}'
+{% if cookiecutter.use_commercetools_api_extension|int -%}
+process.env.ORDER_PREFIX = 'unittest-'
+process.env.INITIAL_ORDER_NUMBER = '2000000'{% endif %}

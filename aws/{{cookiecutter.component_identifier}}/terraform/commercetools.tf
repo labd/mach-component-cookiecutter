@@ -15,7 +15,7 @@ resource "aws_iam_access_key" "ct_api_extensions" {
 resource "aws_lambda_permission" "ct_api_extension" {
   statement_id  = "AllowCreateOrderLambdaInvoke"
   action        = "lambda:InvokeFunction"
-  function_name = module.lambda_function.this_lambda_function_arn
+  function_name = module.extension_function.this_lambda_function_arn
   principal     = aws_iam_user.ct_api_extensions.arn
 }
 
@@ -24,13 +24,13 @@ resource "commercetools_api_extension" "main" {
 
   destination = {
     type          = "AWSLambda"
-    arn           = module.lambda_function.this_lambda_function_arn
+    arn           = module.extension_function.this_lambda_function_arn
     access_key    = aws_iam_access_key.ct_api_extensions.id
     access_secret = aws_iam_access_key.ct_api_extensions.secret
   }
 
   trigger {
-    resource_type_id = "cart"
+    resource_type_id = "order"
     actions          = ["Create"]
   }
 

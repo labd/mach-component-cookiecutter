@@ -4,6 +4,9 @@ __{{ cookiecutter.language }}__
 !terraform/sqs.tf
 !src/subscriptions
 {% endif %}
+{% if not cookiecutter.use_commercetools_api_extension|int -%}
+!src/extensions
+{% endif %}
 {% if cookiecutter.language == "node" %}
 {% if not cookiecutter.use_commercetools|int -%}
 !src/@types/@commercetools

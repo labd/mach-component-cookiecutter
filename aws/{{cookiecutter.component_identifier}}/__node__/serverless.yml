@@ -33,12 +33,16 @@ functions:
   service:
     handler: src/http/index.handler
     events:
-      - httpApi: '*'
+      - httpApi: 
+          method: '*'
+          path: '/{proxy+}'
   {% if cookiecutter.use_commercetools_api_extension|int -%}
   extensions:
     handler: src/extensions/index.handler
     events:
-      - httpApi: '*'{% endif %}
+      - httpApi: 
+          method: '*'
+          path: 'extensions/{proxy+}'{% endif %}
   {% if cookiecutter.use_commercetools_subscription|int -%}
   subscription:
     handler: src/subscription/index.handler

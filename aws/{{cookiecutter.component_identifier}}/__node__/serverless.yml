@@ -27,11 +27,31 @@ custom:
     webpackConfig: 'webpack.config.ts'
     packager: 'yarn'
     includeModules: true
+    keepOutputDirectory: true
 
 functions:
   service:
     handler: src/http/index.handler
     events:
-      - httpApi:
-          method: '*'
-          path: '/{proxy+}'
+      - httpApi: '*'
+  {% if cookiecutter.use_commercetools_api_extension|int -%}
+  extensions:
+    handler: src/extensions/index.handler
+    events:
+      - httpApi: '*'{% endif %}
+  {% if cookiecutter.use_commercetools_subscription|int -%}
+  subscription:
+    handler: src/subscription/index.handler
+    events:
+      - sqs:
+          arn:
+            Fn::GetAtt:
+              - SubscriptionQueue
+              - Arn
+
+resources:
+  Resources:
+    SubscriptionQueue:
+      Type: "AWS::SQS::Queue"
+      Properties:
+        QueueName: "SubscriptionQueue"{% endif %}

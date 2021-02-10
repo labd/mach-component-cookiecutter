@@ -33,26 +33,40 @@ const getAccessToken = async () => {
 }
 
 const getAuthMiddleware = async () => {
-  if (process.env.CT_CLIENT_ID && process.env.CT_CLIENT_SECRET && process.env.CT_SCOPES) {
-    {% if cookiecutter.use_commercetools_token_rotator|int -%}
-    console.warn("CT_CLIENT_ID and CT_CLIENT_SECRET for local dev only; make sure this is not used in production"){% endif %}
+  if (process.env.CT_ACCESS_TOKEN_SECRET_NAME) {
+    const token = await getAccessToken()
+    return createAuthMiddlewareWithExistingToken(`Bearer ${token}`, {
+      force: true,
+    })
+  } else if (process.env.CT_CLIENT_ID && process.env.CT_SCOPES) {
     assert(process.env.CT_AUTH_URL, 'CT_AUTH_URL missing')
+
+    let clientSecret = process.env.CT_CLIENT_SECRET
+
+    if (process.env.CT_CLIENT_SECRET) {
+      console.warn("CT_CLIENT_SECRET for local dev only; make sure this is not used in production")
+      clientSecret = process.env.CT_CLIENT_SECRET
+    } else if (process.env.CT_CLIENT_SECRET_SECRET_NAME) {
+      clientSecret = await getSecret(process.env.CT_CLIENT_SECRET_SECRET_NAME)
+    } 
+    
+    assert(clientSecret, 'No CT_CLIENT_SECRET_SECRET_NAME defined')
+
     return createAuthMiddlewareForClientCredentialsFlow({
       host: process.env.CT_AUTH_URL,
       projectKey: projectKey,
       credentials: {
         clientId: process.env.CT_CLIENT_ID,
-        clientSecret: process.env.CT_CLIENT_SECRET,
+        clientSecret: clientSecret,
       },
       scopes: process.env.CT_SCOPES.split(','),
       fetch,
     })
   }
 
-  const token = await getAccessToken()
-  return createAuthMiddlewareWithExistingToken(`Bearer ${token}`, {
-    force: true,
-  })
+  throw new Error(
+    'No commercetools credentials provided; either specify a CT_ACCESS_TOKEN_SECRET_NAME or combination of CT_CLIENT_ID, CT_CLIENT_SECRET_SECRET_NAME and CT_SCOPES'
+  )
 }
 
 const httpMiddleware = createHttpMiddleware({

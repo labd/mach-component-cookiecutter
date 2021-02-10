@@ -70,9 +70,12 @@ locals {
       
 
       RELEASE                     = "${local.component_name}@${var.component_version}"
+      VERSION                     = var.component_version
       COMPONENT_NAME              = local.component_name
       ENVIRONMENT                 = var.environment
       SITE                        = var.site
+      
+
       
 
       AWS_XRAY_LOG_LEVEL       = "debug"
@@ -81,6 +84,8 @@ locals {
     }
   )
 }
+
+
 
 
 

@@ -137,9 +137,12 @@ locals {
       
 
       RELEASE                     = "${local.component_name}@${var.component_version}"
+      VERSION                     = var.component_version
       COMPONENT_NAME              = local.component_name
       ENVIRONMENT                 = var.environment
       SITE                        = var.site
+      
+
       
 
       AWS_XRAY_LOG_LEVEL       = "debug"
@@ -151,11 +154,13 @@ locals {
 
 
 
+
+
 module "subscription_function" {
   source  = "terraform-aws-modules/lambda/aws"
 
   function_name = "${var.site}-unit-test-subscription"
-  description   = "Unit Test component commercetools subscriptions "
+  description   = "Unit Test component commercetools subscriptions"
   handler       = "src/subscriptions/index.handler"
   runtime       = "nodejs12.x"
 
@@ -175,6 +180,7 @@ module "subscription_function" {
 
   attach_policy_json = true
   policy_json        = data.aws_iam_policy_document.lambda_policy.json
+  publish            = true
 }
 locals {
   ct_scopes = formatlist("%s:%s", [

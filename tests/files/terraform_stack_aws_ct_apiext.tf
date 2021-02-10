@@ -10,7 +10,7 @@ resource "aws_iam_access_key" "ct_api_extensions" {
 resource "aws_lambda_permission" "ct_api_extension" {
   statement_id  = "AllowCreateOrderLambdaInvoke"
   action        = "lambda:InvokeFunction"
-  function_name = module.lambda_function.this_lambda_function_arn
+  function_name = module.extension_function.this_lambda_function_arn
   principal     = aws_iam_user.ct_api_extensions.arn
 }
 
@@ -19,13 +19,13 @@ resource "commercetools_api_extension" "main" {
 
   destination = {
     type          = "AWSLambda"
-    arn           = module.lambda_function.this_lambda_function_arn
+    arn           = module.extension_function.this_lambda_function_arn
     access_key    = aws_iam_access_key.ct_api_extensions.id
     access_secret = aws_iam_access_key.ct_api_extensions.secret
   }
 
   trigger {
-    resource_type_id = "cart"
+    resource_type_id = "order"
     actions          = ["Create"]
   }
 
@@ -104,10 +104,14 @@ locals {
       
 
       RELEASE                     = "${local.component_name}@${var.component_version}"
+      VERSION                     = var.component_version
       COMPONENT_NAME              = local.component_name
       ENVIRONMENT                 = var.environment
       SITE                        = var.site
       
+
+      ORDER_PREFIX                = lookup(var.variables, "ORDER_PREFIX", "")
+      INITIAL_ORDER_NUMBER        = lookup(var.variables, "INITIAL_ORDER_NUMBER", 0)
 
       AWS_XRAY_LOG_LEVEL       = "debug"
       AWS_XRAY_DEBUG_MODE      = "true"
@@ -116,13 +120,16 @@ locals {
   )
 }
 
-module "lambda_function" {
+
+
+module "extension_function" {
   source = "terraform-aws-modules/lambda/aws"
 
-  function_name = "${var.site}-unit-test"
-  description   = "Unit Test component"
-  handler       = "src/http/index.handler"
+  function_name = "${var.site}-unit-test-extension"
+  description   = "Unit Test component commercetools api extension"
+  handler       = "src/extensions/index.handler"
   runtime       = "nodejs12.x"
+  
   memory_size   = 512
   timeout       = 10
 
@@ -140,10 +147,7 @@ module "lambda_function" {
   attach_policy_json = true
   policy_json        = data.aws_iam_policy_document.lambda_policy.json
   publish            = true
-  
-  
 }
-
 
 
 

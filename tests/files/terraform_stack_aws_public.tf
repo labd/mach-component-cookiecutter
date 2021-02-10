@@ -63,9 +63,12 @@ locals {
       
 
       RELEASE                     = "${local.component_name}@${var.component_version}"
+      VERSION                     = var.component_version
       COMPONENT_NAME              = local.component_name
       ENVIRONMENT                 = var.environment
       SITE                        = var.site
+      
+
       
 
       AWS_XRAY_LOG_LEVEL       = "debug"
@@ -122,6 +125,8 @@ resource "aws_apigatewayv2_route" "application" {
   route_key = "ANY /unit-test/{proxy+}"
   target    = "integrations/${aws_apigatewayv2_integration.gateway.id}"
 }
+
+
 
 
 locals {

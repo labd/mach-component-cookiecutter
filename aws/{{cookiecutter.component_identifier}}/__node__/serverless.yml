@@ -42,7 +42,7 @@ functions:
     events:
       - httpApi: 
           method: '*'
-          path: 'extensions/{proxy+}'{% endif %}
+          path: '/extensions/{proxy+}'{% endif %}
   {% if cookiecutter.use_commercetools_subscription|int -%}
   subscription:
     handler: src/subscription/index.handler

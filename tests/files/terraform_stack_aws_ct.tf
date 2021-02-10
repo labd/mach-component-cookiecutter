@@ -121,9 +121,17 @@ locals {
   })
 }
 
+resource "random_id" "main" {
+  byte_length = 5
+  keepers = {
+    # Generate a new id each time set of secrets change
+    secrets = join("", tolist(keys(local.secrets)))
+  }
+}
+
 resource "aws_secretsmanager_secret" "component_secret" {
   for_each = local.secrets
-  name     = "${local.component_name}/${replace(each.key, "_", "-")}-secret"
+  name     = "${local.component_name}/${replace(each.key, "_", "-")}-secret-${random_id.main.hex}"
 
   tags = {
     lambda = local.component_name

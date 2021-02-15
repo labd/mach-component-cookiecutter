@@ -176,7 +176,7 @@ data "azurerm_storage_account_blob_container_sas" "code_access" {
 }
 
 locals {
-  package_name = "unit-test-${var.component_version}.zip"
+  package_name = "${local.component_name}-${var.component_version}.zip"
 }
 
 # Check if the version really exists
@@ -187,11 +187,13 @@ data "external" "package_exists" {
 locals {
   environment_variables = {
     # Function metadata
-    NAME               = var.short_name
+    NAME               = local.component_name
     COMPONENT_VERSION  = var.component_version
     SITE               = var.site
     REGION             = var.region
     ENVIRONMENT        = var.environment
+    RELEASE            = "${local.component_name}@${var.component_version}"
+    
     # Commercetools
     CTP_PROJECT_KEY            = var.ct_project_key
     CTP_SCOPES                 = join(",", local.ct_scopes)
@@ -252,6 +254,7 @@ data "external" "sync_trigger" {
     "az rest --method post --uri 'https://management.azure.com/subscriptions/${var.subscription_id}/resourceGroups/${var.resource_group_name}/providers/Microsoft.Web/sites/${azurerm_function_app.main.name}/syncfunctiontriggers?api-version=2016-08-01'"
   ]
 }
+
 resource "azurerm_key_vault" "main" {
   name                        = replace(format("%s-kv-%s", var.name_prefix, var.short_name), "-", "")
   location                    = var.resource_group_location
@@ -322,6 +325,7 @@ locals {
     "manage_orders",
 		"view_orders",
   ], var.ct_project_key)
+  component_name       = "unit-test"
 }
 
 terraform {

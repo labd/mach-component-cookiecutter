@@ -18,7 +18,7 @@
     "skipLibCheck": true,
     "strictNullChecks": true,
     "strictPropertyInitialization": false,
-    "typeRoots": ["./node_modules/@types", "./src/@types"]
+    "typeRoots": ["./node_modules/@types", "./@types"]
   },
   "exclude": [
     "**/*.test.ts"

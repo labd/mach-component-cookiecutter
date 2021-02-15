@@ -5,4 +5,5 @@ locals {
     "manage_orders",
 		"view_orders",
   ], var.ct_project_key){% endif %}
+  component_name       = "{{ cookiecutter.name|slugify }}"
 }

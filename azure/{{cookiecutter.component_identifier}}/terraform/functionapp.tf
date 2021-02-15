@@ -26,7 +26,7 @@ data "azurerm_storage_account_blob_container_sas" "code_access" {
 }
 
 locals {
-  package_name = "{{ cookiecutter.name|slugify }}-${var.component_version}.zip"
+  package_name = "${local.component_name}-${var.component_version}.zip"
 }
 
 # Check if the version really exists
@@ -37,11 +37,13 @@ data "external" "package_exists" {
 locals {
   environment_variables = {
     # Function metadata
-    NAME               = var.short_name
+    NAME               = local.component_name
     COMPONENT_VERSION  = var.component_version
     SITE               = var.site
     REGION             = var.region
     ENVIRONMENT        = var.environment
+    RELEASE            = "${local.component_name}@${var.component_version}"
+    
     {% if cookiecutter.use_commercetools|int -%}
     # Commercetools
     CTP_PROJECT_KEY            = var.ct_project_key

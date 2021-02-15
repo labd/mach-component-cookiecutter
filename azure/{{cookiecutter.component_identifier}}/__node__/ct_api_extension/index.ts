@@ -1,7 +1,9 @@
-import { ExtensionInput, UpdateAction } from "@commercetools/platform-sdk";
-import { AzureFunction, Context, HttpRequest } from "@azure/functions";
-import { setDefaultShippingMethodAction } from "./cart";
-import { ExtensionError } from "./errors";
+import { ExtensionInput, UpdateAction } from '@commercetools/platform-sdk'
+import { AzureFunction, Context, HttpRequest } from '@azure/functions'
+import { getCartUpdates } from './cart'
+import { ExtensionError } from './errors'
+import intercept from '../shared/intercept'
+import { Sentry } from '../shared/sentry'
 
 const httpTrigger: AzureFunction = async function (
   context: Context,
@@ -10,50 +12,59 @@ const httpTrigger: AzureFunction = async function (
   if (!req.body || !req.body.action || !req.body.resource) {
     context.res = {
       status: 400,
-      body: "Invalid request",
-    };
-    return;
+      body: 'Invalid request',
+    }
+    return
   }
 
+  intercept(context)
+
   try {
-    const result = await handle(req.body);
+    const result = await handle(req.body)
     context.res = {
       body: result,
-    };
+    }
   } catch (err) {
     if (err instanceof ExtensionError) {
       context.res = {
         status: err.status,
-        body: err.message,
-      };
-      context.log.error(err);
-      return;
+        body: {
+          errors: [
+            {
+              code: err.code,
+              message: err.message,
+            },
+          ],
+        },
+      }
+      context.log.error(err)
+      return
     }
-    throw err;
+
+    Sentry.captureException(err)
+    await Sentry.flush(2000);
+    
+    throw err
   }
-};
+}
 
 const handle = async ({ action, resource }: ExtensionInput) => {
-  if (action !== "Create") {
-    throw new ExtensionError(`Unsupported action '${action}'`);
-  }
-
   if (!resource.obj) {
-    throw new ExtensionError("No resource or resource object given");
+    throw new ExtensionError('No resource or resource object given')
   }
 
-  console.info(`Receive ${action} action for a ${resource.typeId}`);
+  console.info(`Receive ${action} action for a ${resource.typeId}`)
 
   if (resource.typeId === 'cart') {
-    return createUpdateRequest(setDefaultShippingMethodAction());
+    return createUpdateRequest(...(await getCartUpdates(resource.obj)))
   }
 
-  throw new ExtensionError(`Unsupported resource typeId '${resource.typeId}'`);
-};
+  throw new ExtensionError(`Unsupported resource typeId '${resource.typeId}'`)
+}
 
 const createUpdateRequest = (...actions: UpdateAction[]) => ({
   responseType: 'UpdateRequest',
   actions: actions,
-});
+})
 
-export default httpTrigger;
+export default httpTrigger

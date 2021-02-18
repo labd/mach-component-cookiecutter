@@ -11,6 +11,10 @@ package () {
     yarn build:production
     mkdir -p build
     func pack -o build/$NAME
+    # For some reason; func pack doesnt do this for us;
+    find . -name function.json | xargs zip -ur build/$NAME.zip
+    zip -ur build/$NAME.zip dist
+    zip -ur build/$NAME.zip node_modules
     {% else -%}
     mkdir -p build
 	func pack --build-native-deps --python

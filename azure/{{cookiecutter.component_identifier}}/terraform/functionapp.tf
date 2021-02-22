@@ -72,7 +72,7 @@ resource "azurerm_function_app" "main" {
   name                       = lower(format("%s-func-%s", var.name_prefix, var.short_name))
   location                   = var.resource_group_location
   resource_group_name        = var.resource_group_name
-  app_service_plan_id        = var.app_service_plan_id
+  app_service_plan_id        = var.app_service_plan.id
   storage_account_name       = azurerm_storage_account.main.name
   storage_account_access_key = azurerm_storage_account.main.primary_access_key
   app_settings               = merge(var.variables, local.environment_variables, local.secret_variables, local.extra_secrets)

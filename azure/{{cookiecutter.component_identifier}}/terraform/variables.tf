@@ -35,8 +35,11 @@ variable "resource_group_location" {
   type = string
 }
 
-variable "app_service_plan_id" {
-  type = string
+variable "app_service_plan" {
+  type = object({
+    id   = string
+    name = string
+  })
 }
 
 variable "monitor_action_group_id" {

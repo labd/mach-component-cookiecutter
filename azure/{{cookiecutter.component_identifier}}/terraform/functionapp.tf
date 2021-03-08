@@ -40,7 +40,7 @@ locals {
     NAME               = local.component_name
     COMPONENT_VERSION  = var.component_version
     SITE               = var.site
-    REGION             = var.region
+    REGION             = var.azure_region
     ENVIRONMENT        = var.environment
     RELEASE            = "${local.component_name}@${var.component_version}"
     
@@ -57,6 +57,9 @@ locals {
     WEBSITE_RUN_FROM_ZIP           = "https://${data.azurerm_storage_account.shared.name}.blob.core.windows.net/${data.azurerm_storage_container.code.name}/${local.package_name}${data.azurerm_storage_account_blob_container_sas.code_access.sas}"
     APPINSIGHTS_INSTRUMENTATIONKEY = azurerm_application_insights.insights.instrumentation_key
     FUNCTIONS_WORKER_RUNTIME       = "{{ cookiecutter.language }}"
+    {% if cookiecutter.use_public_api|int %}
+    FRONTDOOR_ID = var.azure_endpoint_main.frontdoor_id
+    {% endif %}
   }
 
   # Secrets, have to manually build these urls to ensure the latest version is in the functionapp and not the initial value.
@@ -69,10 +72,10 @@ locals {
 }
 
 resource "azurerm_function_app" "main" {
-  name                       = lower(format("%s-func-%s", var.name_prefix, var.short_name))
-  location                   = var.resource_group_location
-  resource_group_name        = var.resource_group_name
-  app_service_plan_id        = var.app_service_plan.id
+  name                       = lower(format("%s-func-%s", var.azure_name_prefix, var.azure_short_name))
+  location                   = var.azure_resource_group.location
+  resource_group_name        = var.azure_resource_group.name
+  app_service_plan_id        = var.azure_app_service_plan.id
   storage_account_name       = azurerm_storage_account.main.name
   storage_account_access_key = azurerm_storage_account.main.primary_access_key
   app_settings               = merge(var.variables, local.environment_variables, local.secret_variables, local.extra_secrets)
@@ -105,6 +108,6 @@ data "external" "sync_trigger" {
   program = [
     "bash", 
     "-c", 
-    "az rest --method post --uri 'https://management.azure.com/subscriptions/${var.subscription_id}/resourceGroups/${var.resource_group_name}/providers/Microsoft.Web/sites/${azurerm_function_app.main.name}/syncfunctiontriggers?api-version=2016-08-01'"
+    "az rest --method post --uri 'https://management.azure.com/subscriptions/${var.azure_subscription_id}/resourceGroups/${var.azure_resource_group.name}/providers/Microsoft.Web/sites/${azurerm_function_app.main.name}/syncfunctiontriggers?api-version=2016-08-01'"
   ]
 }

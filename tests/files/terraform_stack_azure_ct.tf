@@ -1,8 +1,8 @@
 # errors, duration triggers, dead letter queues?
 resource "azurerm_application_insights" "insights" {
-  name                 = lower(format("%s-appi-%s", var.name_prefix, var.short_name))
-  location             = var.resource_group_location
-  resource_group_name  = var.resource_group_name
+  name                 = lower(format("%s-appi-%s", var.azure_name_prefix, var.azure_short_name))
+  location             = var.azure_resource_group.location
+  resource_group_name  = var.azure_resource_group.name
   application_type     = "web"
   daily_data_cap_in_gb = 1
   retention_in_days    = 90
@@ -11,8 +11,8 @@ resource "azurerm_application_insights" "insights" {
 }
 
 resource "azurerm_monitor_metric_alert" "exceptions" {
-  name                = format("%s-exceptions", var.short_name)
-  resource_group_name = var.resource_group_name
+  name                = format("%s-exceptions", var.azure_short_name)
+  resource_group_name = var.azure_resource_group.name
   scopes              = [azurerm_application_insights.insights.id]
   description         = "Action will be triggered when uncaught exceptions are present"
 
@@ -29,14 +29,14 @@ resource "azurerm_monitor_metric_alert" "exceptions" {
   }
 
   dynamic "action" {
-    for_each = var.monitor_action_group_id == "" ? [] : [1]
+    for_each = var.azure_monitor_action_group_id == "" ? [] : [1]
     
     content {
-      action_group_id = var.monitor_action_group_id
+      action_group_id = var.azure_monitor_action_group_id
 
       # data sent with the webhook
       webhook_properties = {
-        "component" : var.short_name
+        "component" : var.azure_short_name
       }
     }
   }
@@ -50,10 +50,12 @@ resource "azurerm_monitor_metric_alert" "exceptions" {
 
 
 
+
 resource "commercetools_api_client" "main" {
-  name  = "${var.name_prefix}_unit-test"
+  name  = "${var.azure_name_prefix}_unit-test"
   scope = local.ct_scopes
 }
+
 
 
 
@@ -100,7 +102,7 @@ locals {
     NAME               = local.component_name
     COMPONENT_VERSION  = var.component_version
     SITE               = var.site
-    REGION             = var.region
+    REGION             = var.azure_region
     ENVIRONMENT        = var.environment
     RELEASE            = "${local.component_name}@${var.component_version}"
     
@@ -116,6 +118,7 @@ locals {
     WEBSITE_RUN_FROM_ZIP           = "https://${data.azurerm_storage_account.shared.name}.blob.core.windows.net/${data.azurerm_storage_container.code.name}/${local.package_name}${data.azurerm_storage_account_blob_container_sas.code_access.sas}"
     APPINSIGHTS_INSTRUMENTATIONKEY = azurerm_application_insights.insights.instrumentation_key
     FUNCTIONS_WORKER_RUNTIME       = "python"
+    
   }
 
   # Secrets, have to manually build these urls to ensure the latest version is in the functionapp and not the initial value.
@@ -127,10 +130,10 @@ locals {
 }
 
 resource "azurerm_function_app" "main" {
-  name                       = lower(format("%s-func-%s", var.name_prefix, var.short_name))
-  location                   = var.resource_group_location
-  resource_group_name        = var.resource_group_name
-  app_service_plan_id        = var.app_service_plan.id
+  name                       = lower(format("%s-func-%s", var.azure_name_prefix, var.azure_short_name))
+  location                   = var.azure_resource_group.location
+  resource_group_name        = var.azure_resource_group.name
+  app_service_plan_id        = var.azure_app_service_plan.id
   storage_account_name       = azurerm_storage_account.main.name
   storage_account_access_key = azurerm_storage_account.main.primary_access_key
   app_settings               = merge(var.variables, local.environment_variables, local.secret_variables, local.extra_secrets)
@@ -161,16 +164,16 @@ data "external" "sync_trigger" {
   program = [
     "bash", 
     "-c", 
-    "az rest --method post --uri 'https://management.azure.com/subscriptions/${var.subscription_id}/resourceGroups/${var.resource_group_name}/providers/Microsoft.Web/sites/${azurerm_function_app.main.name}/syncfunctiontriggers?api-version=2016-08-01'"
+    "az rest --method post --uri 'https://management.azure.com/subscriptions/${var.azure_subscription_id}/resourceGroups/${var.azure_resource_group.name}/providers/Microsoft.Web/sites/${azurerm_function_app.main.name}/syncfunctiontriggers?api-version=2016-08-01'"
   ]
 }
 
 resource "azurerm_key_vault" "main" {
-  name                        = replace(format("%s-kv-%s", var.name_prefix, var.short_name), "-", "")
-  location                    = var.resource_group_location
-  resource_group_name         = var.resource_group_name
+  name                        = replace(format("%s-kv-%s", var.azure_name_prefix, var.azure_short_name), "-", "")
+  location                    = var.azure_resource_group.location
+  resource_group_name         = var.azure_resource_group.name
   enabled_for_disk_encryption = true
-  tenant_id                   = var.tenant_id
+  tenant_id                   = var.azure_tenant_id
   sku_name                    = "standard"
 
   tags = var.tags
@@ -178,10 +181,10 @@ resource "azurerm_key_vault" "main" {
 
 
 resource "azurerm_key_vault_access_policy" "service_access" {
-  for_each = var.service_object_ids
+  for_each = var.azure_service_object_ids
   
   key_vault_id = azurerm_key_vault.main.id
-  tenant_id = var.tenant_id
+  tenant_id = var.azure_tenant_id
   object_id = each.value
 
   secret_permissions = [
@@ -195,7 +198,7 @@ resource "azurerm_key_vault_access_policy" "service_access" {
 resource "azurerm_key_vault_access_policy" "function_app" {
   key_vault_id = azurerm_key_vault.main.id
 
-  tenant_id = var.tenant_id
+  tenant_id = var.azure_tenant_id
   object_id = azurerm_function_app.main.identity.0.principal_id
 
   secret_permissions = [
@@ -229,6 +232,7 @@ resource "azurerm_key_vault_secret" "ct_client_secret" {
     azurerm_key_vault_access_policy.service_access,
   ]
 }
+
 locals {
   storage_type     = var.environment == "production" ? "ZRS" : "LRS"
   ct_scopes = formatlist("%s:%s", [
@@ -256,9 +260,9 @@ output "app_service_url" {
 }
 
 resource "azurerm_storage_account" "main" {
-  name                     = replace(lower(format("%s-sa-%s", var.name_prefix, var.short_name)), "-", "")
-  location                 = var.resource_group_location
-  resource_group_name      = var.resource_group_name
+  name                     = replace(lower(format("%s-sa-%s", var.azure_name_prefix, var.azure_short_name)), "-", "")
+  location                 = var.azure_resource_group.location
+  resource_group_name      = var.azure_resource_group.name
   account_tier             = "Standard"
   account_replication_type = local.storage_type
   allow_blob_public_access = false
@@ -267,55 +271,58 @@ resource "azurerm_storage_account" "main" {
 }
 
 
-variable "short_name" {
+
+variable "azure_short_name" {
   type        = string
   description = "Short name passed by MACH. Will not be more than 10 characters"
 }
 
-variable "name_prefix" {
+variable "azure_name_prefix" {
   type = string
 }
 
-variable "subscription_id" {
+variable "azure_subscription_id" {
   type = string
 }
 
-variable "tenant_id" {
+variable "azure_tenant_id" {
   type = string
 }
 
-variable "service_object_ids" {
+variable "azure_service_object_ids" {
   type        = map(string)
   default     = {}
   description = "Map of object ids that should have access to the keyvaults. (f.e. jenkins + developers)"
 }
 
-variable "region" {
+variable "azure_region" {
   type        = string
   default     = ""
   description = "Region: Azure region"
 }
 
-variable "resource_group_name" {
-  type = string
+variable "azure_resource_group" {
+  type = object({
+    name     = string
+    location = string
+  })
+  description = "Information of the resource group the component should be created in"
 }
 
-variable "resource_group_location" {
-  type = string
-}
-
-variable "app_service_plan" {
+variable "azure_app_service_plan" {
   type = object({
     id   = string
     name = string
   })
 }
 
-variable "monitor_action_group_id" {
+variable "azure_monitor_action_group_id" {
   type        = string
   description = "Azure Monitor action group to send alerts to."
   default     = ""
 }
+
+
 
 variable "tags" {
   type        = map(string)

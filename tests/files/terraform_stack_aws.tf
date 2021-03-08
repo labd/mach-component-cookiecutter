@@ -83,6 +83,7 @@ locals {
 
 
 
+
 locals {
   
   component_name       = "unit-test"
@@ -144,6 +145,11 @@ variable "site" {
   description = "Identifier of the site."
 }
 
+variable "tags" {
+  type        = map(string)
+  description = "Tags to be used on resources."
+}
+
 variable "variables" {
   type        = map(string)
   description = "Generic way to pass variables to components. Some of these can also be used as environment variables."
@@ -153,5 +159,6 @@ variable "secrets" {
   type        = map(string)
   description = "Map of secret values. Will be put in the key vault."
 }
+
 
 

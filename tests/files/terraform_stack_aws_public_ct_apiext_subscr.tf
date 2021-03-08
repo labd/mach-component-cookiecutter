@@ -215,13 +215,13 @@ module "lambda_function" {
   allowed_triggers = {
     APIGatewayAny = {
       service = "apigateway"
-      arn     = var.endpoint_main.api_gateway_execution_arn
+      arn     = var.aws_endpoint_main.api_gateway_execution_arn
     }
   }
 }
 
 resource "aws_apigatewayv2_integration" "gateway" {
-  api_id           = var.endpoint_main.api_gateway_id
+  api_id           = var.aws_endpoint_main.api_gateway_id
   integration_type = "AWS_PROXY"
 
   connection_type = "INTERNET"
@@ -230,7 +230,7 @@ resource "aws_apigatewayv2_integration" "gateway" {
 }
 
 resource "aws_apigatewayv2_route" "application" {
-  api_id    = var.endpoint_main.api_gateway_id
+  api_id    = var.aws_endpoint_main.api_gateway_id
   route_key = "ANY /unit-test/{proxy+}"
   target    = "integrations/${aws_apigatewayv2_integration.gateway.id}"
 }
@@ -289,6 +289,7 @@ module "subscription_function" {
   policy_json        = data.aws_iam_policy_document.lambda_policy.json
   publish            = true
 }
+
 locals {
   ct_scopes = formatlist("%s:%s", [
     "manage_orders",
@@ -388,6 +389,11 @@ variable "site" {
   description = "Identifier of the site."
 }
 
+variable "tags" {
+  type        = map(string)
+  description = "Tags to be used on resources."
+}
+
 variable "ct_project_key" {
   type = string
 }
@@ -421,10 +427,11 @@ variable "secrets" {
 }
 
 
-variable "endpoint_main" {
+variable "aws_endpoint_main" {
   type = object({
     url                       = string
     api_gateway_id            = string
     api_gateway_execution_arn = string
   })
 }
+

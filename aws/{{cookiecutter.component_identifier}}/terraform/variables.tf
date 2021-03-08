@@ -12,6 +12,11 @@ variable "site" {
   type        = string
   description = "Identifier of the site."
 }
+
+variable "tags" {
+  type        = map(string)
+  description = "Tags to be used on resources."
+}
 {% if cookiecutter.use_commercetools|int %}
 variable "ct_project_key" {
   type = string
@@ -50,7 +55,7 @@ variable "sentry_dsn" {
   default = ""
 }{% endif %}
 {% if cookiecutter.use_public_api|int %}
-variable "endpoint_main" {
+variable "aws_endpoint_main" {
   type = object({
     url                       = string
     api_gateway_id            = string

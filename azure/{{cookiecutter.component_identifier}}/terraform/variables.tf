@@ -1,52 +1,61 @@
-variable "short_name" {
+variable "azure_short_name" {
   type        = string
   description = "Short name passed by MACH. Will not be more than 10 characters"
 }
 
-variable "name_prefix" {
+variable "azure_name_prefix" {
   type = string
 }
 
-variable "subscription_id" {
+variable "azure_subscription_id" {
   type = string
 }
 
-variable "tenant_id" {
+variable "azure_tenant_id" {
   type = string
 }
 
-variable "service_object_ids" {
+variable "azure_service_object_ids" {
   type        = map(string)
   default     = {}
   description = "Map of object ids that should have access to the keyvaults. (f.e. jenkins + developers)"
 }
 
-variable "region" {
+variable "azure_region" {
   type        = string
   default     = ""
   description = "Region: Azure region"
 }
 
-variable "resource_group_name" {
-  type = string
+variable "azure_resource_group" {
+  type = object({
+    name     = string
+    location = string
+  })
+  description = "Information of the resource group the component should be created in"
 }
 
-variable "resource_group_location" {
-  type = string
-}
-
-variable "app_service_plan" {
+variable "azure_app_service_plan" {
   type = object({
     id   = string
     name = string
   })
 }
 
-variable "monitor_action_group_id" {
+variable "azure_monitor_action_group_id" {
   type        = string
   description = "Azure Monitor action group to send alerts to."
   default     = ""
 }
+
+{% if cookiecutter.use_public_api|int %}
+variable "azure_endpoint_main" {
+  type = object({
+    url          = string
+    frontdoor_id = string
+  })
+}
+{% endif %}
 
 variable "tags" {
   type        = map(string)

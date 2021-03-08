@@ -1,8 +1,8 @@
 # errors, duration triggers, dead letter queues?
 resource "azurerm_application_insights" "insights" {
-  name                 = lower(format("%s-appi-%s", var.name_prefix, var.short_name))
-  location             = var.resource_group_location
-  resource_group_name  = var.resource_group_name
+  name                 = lower(format("%s-appi-%s", var.azure_name_prefix, var.azure_short_name))
+  location             = var.azure_resource_group.location
+  resource_group_name  = var.azure_resource_group.name
   application_type     = "web"
   daily_data_cap_in_gb = 1
   retention_in_days    = 90
@@ -11,8 +11,8 @@ resource "azurerm_application_insights" "insights" {
 }
 
 resource "azurerm_monitor_metric_alert" "exceptions" {
-  name                = format("%s-exceptions", var.short_name)
-  resource_group_name = var.resource_group_name
+  name                = format("%s-exceptions", var.azure_short_name)
+  resource_group_name = var.azure_resource_group.name
   scopes              = [azurerm_application_insights.insights.id]
   description         = "Action will be triggered when uncaught exceptions are present"
 
@@ -29,14 +29,14 @@ resource "azurerm_monitor_metric_alert" "exceptions" {
   }
 
   dynamic "action" {
-    for_each = var.monitor_action_group_id == "" ? [] : [1]
+    for_each = var.azure_monitor_action_group_id == "" ? [] : [1]
     
     content {
-      action_group_id = var.monitor_action_group_id
+      action_group_id = var.azure_monitor_action_group_id
 
       # data sent with the webhook
       webhook_properties = {
-        "component" : var.short_name
+        "component" : var.azure_short_name
       }
     }
   }
@@ -49,9 +49,9 @@ resource "azurerm_monitor_metric_alert" "exceptions" {
 
 {% if cookiecutter.use_commercetools_api_extension|int or cookiecutter.use_public_api|int -%}
 resource "azurerm_application_insights_web_test" "ping" {
-  name                    = lower(format("%s-appi-%s-ping", var.name_prefix, var.short_name))
-  location                = var.resource_group_location
-  resource_group_name     = var.resource_group_name
+  name                    = lower(format("%s-appi-%s-ping", var.azure_name_prefix, var.azure_short_name))
+  location                = var.azure_resource_group.location
+  resource_group_name     = var.azure_resource_group.name
   application_insights_id = azurerm_application_insights.insights.id
   kind                    = "ping"
   frequency               = 300
@@ -68,7 +68,7 @@ resource "azurerm_application_insights_web_test" "ping" {
   configuration = <<XML
 <WebTest Name="PingTest" Enabled="True" Timeout="0" Proxy="default" StopOnError="False" RecordedResultFile="">
   <Items>
-    <Request Method="GET" Version="1.1" Url="https://${azurerm_function_app.main.name}.azurewebsites.net/ct_api_extension/healthchecks?code=${var.short_name}" ThinkTime="0" Timeout="300" ParseDependentRequests="True" FollowRedirects="True" RecordResult="True" Cache="False" ResponseTimeGoal="0" Encoding="utf-8" ExpectedHttpStatusCode="200" ExpectedResponseUrl="" ReportingName="" IgnoreHttpStatusCode="False" />
+    <Request Method="GET" Version="1.1" Url="https://${azurerm_function_app.main.name}.azurewebsites.net/ct_api_extension/healthchecks?code=${var.azure_short_name}" ThinkTime="0" Timeout="300" ParseDependentRequests="True" FollowRedirects="True" RecordResult="True" Cache="False" ResponseTimeGoal="0" Encoding="utf-8" ExpectedHttpStatusCode="200" ExpectedResponseUrl="" ReportingName="" IgnoreHttpStatusCode="False" />
   </Items>
 </WebTest>
 XML
@@ -76,8 +76,8 @@ XML
 
 
 resource "azurerm_monitor_metric_alert" "ping" {
-  name                = format("%s-ping-response", var.short_name)
-  resource_group_name = var.resource_group_name
+  name                = format("%s-ping-response", var.azure_short_name)
+  resource_group_name = var.azure_resource_group.name
   scopes              = [azurerm_application_insights.insights.id]
   description         = "Action will be triggered when ping response is too long"
 
@@ -94,13 +94,13 @@ resource "azurerm_monitor_metric_alert" "ping" {
   }
 
   dynamic "action" {
-    for_each = var.monitor_action_group_id == "" ? [] : [1]
+    for_each = var.azure_monitor_action_group_id == "" ? [] : [1]
     content {
-      action_group_id = var.monitor_action_group_id
+      action_group_id = var.azure_monitor_action_group_id
 
       # data sent with the webhook
       webhook_properties = {
-        "component" : var.short_name
+        "component" : var.azure_short_name
       }
     }
   }
@@ -113,8 +113,8 @@ resource "azurerm_monitor_metric_alert" "ping" {
 
 {% if cookiecutter.use_commercetools_subscription|int -%}
 esource "azurerm_monitor_metric_alert" "topic_order_signals_dlq" {
-  name                = format("%s-topic-order-signals-dlq", var.short_name)
-  resource_group_name = var.resource_group_name
+  name                = format("%s-topic-order-signals-dlq", var.azure_short_name)
+  resource_group_name = var.azure_resource_group.name
   scopes              = [data.azurerm_eventgrid_topic.ct_signals.id]
   description         = "Action will be triggered when topic messages are deadlettered."
 
@@ -136,14 +136,14 @@ esource "azurerm_monitor_metric_alert" "topic_order_signals_dlq" {
   }
 
   dynamic "action" {
-    for_each = var.monitor_action_group_id == "" ? [] : [1]
+    for_each = var.azure_monitor_action_group_id == "" ? [] : [1]
 
     content {
-      action_group_id = var.monitor_action_group_id
+      action_group_id = var.azure_monitor_action_group_id
 
       # data sent with the webhook
       webhook_properties = {
-        "component" : var.short_name
+        "component" : var.azure_short_name
       }
     }
   }
@@ -153,8 +153,8 @@ esource "azurerm_monitor_metric_alert" "topic_order_signals_dlq" {
 
 # Double since the previous alert doesn't seem to work reliably, hopefully this will always work
 resource "azurerm_monitor_metric_alert" "dlq_files_exist" {
-  name                = format("%s-sa-dlq-files-exist", var.short_name)
-  resource_group_name = var.resource_group_name
+  name                = format("%s-sa-dlq-files-exist", var.azure_short_name)
+  resource_group_name = var.azure_resource_group.name
   scopes              = [format("%s/blobServices/default", azurerm_storage_account.dlq.id)]
   description         = "Action will be triggered when DLQ files exist."
 
@@ -171,14 +171,14 @@ resource "azurerm_monitor_metric_alert" "dlq_files_exist" {
   }
 
   dynamic "action" {
-    for_each = var.monitor_action_group_id == "" ? [] : [1]
+    for_each = var.azure_monitor_action_group_id == "" ? [] : [1]
 
     content {
-      action_group_id = var.monitor_action_group_id
+      action_group_id = var.azure_monitor_action_group_id
 
       # data sent with the webhook
       webhook_properties = {
-        "component" : var.short_name
+        "component" : var.azure_short_name
       }
     }
   }

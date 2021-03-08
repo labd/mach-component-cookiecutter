@@ -1,11 +1,11 @@
 resource "commercetools_api_client" "main" {
-  name  = "${var.name_prefix}_{{ cookiecutter.name|slugify }}"
+  name  = "${var.azure_name_prefix}_{{ cookiecutter.name|slugify }}"
   scope = local.ct_scopes
 }
 
 {% if cookiecutter.use_commercetools_subscription|int -%}
 resource "commercetools_subscription" "main" {
-  key = "${var.name_prefix}_order_payed"
+  key = "${var.azure_name_prefix}_order_payed"
 
   destination = {
     type       = "azure_eventgrid"
@@ -31,7 +31,7 @@ resource "commercetools_subscription" "main" {
 {% if cookiecutter.use_commercetools_api_extension|int -%}
 data "azurerm_function_app_host_keys" "function_keys" {
   name                = azurerm_function_app.main.name
-  resource_group_name = var.resource_group_name
+  resource_group_name = var.azure_resource_group.name
   depends_on = [
     azurerm_function_app.main
   ]

@@ -63,14 +63,14 @@ module "lambda_function" {
   allowed_triggers = {
     APIGatewayAny = {
       service = "apigateway"
-      arn     = var.endpoint_main.api_gateway_execution_arn
+      arn     = var.aws_endpoint_main.api_gateway_execution_arn
     }
   }{% endif %}
 }
 
 {% if cookiecutter.use_public_api|int -%}
 resource "aws_apigatewayv2_integration" "gateway" {
-  api_id           = var.endpoint_main.api_gateway_id
+  api_id           = var.aws_endpoint_main.api_gateway_id
   integration_type = "AWS_PROXY"
 
   connection_type = "INTERNET"
@@ -79,7 +79,7 @@ resource "aws_apigatewayv2_integration" "gateway" {
 }
 
 resource "aws_apigatewayv2_route" "application" {
-  api_id    = var.endpoint_main.api_gateway_id
+  api_id    = var.aws_endpoint_main.api_gateway_id
   route_key = "ANY /{{ cookiecutter.name|slugify }}/{proxy+}"
   target    = "integrations/${aws_apigatewayv2_integration.gateway.id}"
 }{% endif %}{% endif %}

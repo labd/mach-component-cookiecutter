@@ -1,7 +1,7 @@
 resource "azurerm_storage_account" "main" {
-  name                     = replace(lower(format("%s-sa-%s", var.name_prefix, var.short_name)), "-", "")
-  location                 = var.resource_group_location
-  resource_group_name      = var.resource_group_name
+  name                     = replace(lower(format("%s-sa-%s", var.azure_name_prefix, var.azure_short_name)), "-", "")
+  location                 = var.azure_resource_group.location
+  resource_group_name      = var.azure_resource_group.name
   account_tier             = "Standard"
   account_replication_type = local.storage_type
   allow_blob_public_access = false
@@ -11,9 +11,9 @@ resource "azurerm_storage_account" "main" {
 
 {% if cookiecutter.use_commercetools_subscription|int -%}
 resource "azurerm_storage_account" "dlq" {
-  name                     = replace(lower(format("%s-sa-%s-dlq", var.name_prefix, var.short_name)), "-", "")
-  location                 = var.resource_group_location
-  resource_group_name      = var.resource_group_name
+  name                     = replace(lower(format("%s-sa-%s-dlq", var.azure_name_prefix, var.azure_short_name)), "-", "")
+  location                 = var.azure_resource_group.location
+  resource_group_name      = var.azure_resource_group.name
   account_tier             = "Standard"
   account_replication_type = local.storage_type
   allow_blob_public_access = false

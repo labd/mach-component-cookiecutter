@@ -90,6 +90,7 @@ locals {
 
 
 
+
 locals {
   ct_scopes = formatlist("%s:%s", [
     "manage_orders",
@@ -166,6 +167,11 @@ variable "site" {
   description = "Identifier of the site."
 }
 
+variable "tags" {
+  type        = map(string)
+  description = "Tags to be used on resources."
+}
+
 variable "ct_project_key" {
   type = string
 }
@@ -197,5 +203,6 @@ variable "secrets" {
   type        = map(string)
   description = "Map of secret values. Will be put in the key vault."
 }
+
 
 

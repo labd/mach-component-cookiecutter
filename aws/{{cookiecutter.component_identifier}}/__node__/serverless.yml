@@ -26,8 +26,11 @@ custom:
   webpack:
     webpackConfig: 'webpack.config.ts'
     packager: 'yarn'
-    includeModules: true
     keepOutputDirectory: true
+    excludeFiles: src/**/*.test.ts
+    includeModules:
+      forceExclude:
+        - aws-sdk
 
 functions:
   service:

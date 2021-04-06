@@ -35,18 +35,18 @@ variable "ct_auth_url" {
 variable "ct_stores" {
   type = map(object({
     key       = string
-    variables = map(string)
-    secrets   = map(string)
+    variables = any
+    secrets   = any
   }))
   default = {}
 }{% endif %}
 variable "variables" {
-  type        = map(string)
+  type        = any
   description = "Generic way to pass variables to components. Some of these can also be used as environment variables."
 }
 
 variable "secrets" {
-  type        = map(string)
+  type        = any
   description = "Map of secret values. Will be put in the key vault."
 }
 {% if cookiecutter.sentry_project %}

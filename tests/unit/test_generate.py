@@ -38,13 +38,16 @@ def test_generate(cookies, template, language):
 
 @pytest.mark.parametrize("template", ["azure", "aws"])
 @pytest.mark.parametrize("use_public_api", (1, 0))
-@pytest.mark.parametrize("use_commercetools, use_commercetools_api_extension, use_commercetools_subscription", (
-    (0, 0, 0),
-    (1, 0, 0),
-    (1, 1, 0),
-    (1, 1, 1),
-    (1, 0, 1),
-))
+@pytest.mark.parametrize(
+    "use_commercetools, use_commercetools_api_extension, use_commercetools_subscription",
+    (
+        (0, 0, 0),
+        (1, 0, 0),
+        (1, 1, 0),
+        (1, 1, 1),
+        (1, 0, 1),
+    ),
+)
 def test_terraform_stack(
     cookies,
     template,

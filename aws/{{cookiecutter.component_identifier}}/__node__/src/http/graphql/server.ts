@@ -1,7 +1,7 @@
-import { resolvers } from './resolvers'
-import { typeDefs } from './typedefs'
 import { ApolloServer, makeExecutableSchema } from 'apollo-server-koa'
 import { transformSchemaFederation } from 'graphql-transform-federation'
+import { resolvers } from './resolvers'
+import { typeDefs } from './typedefs'
 
 export type Context = {
   customerIP: string

@@ -1,4 +1,3 @@
-import path from 'path'
 import serverlessWebpack from 'serverless-webpack'
 import ForkTsCheckerWebpackPlugin from 'fork-ts-checker-webpack-plugin'
 import { Configuration, DefinePlugin, WebpackPluginInstance } from 'webpack'

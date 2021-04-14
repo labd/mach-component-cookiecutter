@@ -48,9 +48,10 @@ def component_dir(cloud, config, counter):
 
     yield dirname
 
-    for file in restore_files:
-        move(tmp_path, full_path, file)
-    shutil.rmtree(tmp_path)
+    if os.path.exists(tmp_path):
+        for file in restore_files:
+            move(tmp_path, full_path, file)
+        shutil.rmtree(tmp_path)
 
 
 base = {"name": "unit-test"}

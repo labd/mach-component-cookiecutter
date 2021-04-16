@@ -113,6 +113,7 @@ locals {
       ORDER_PREFIX                = lookup(var.variables, "ORDER_PREFIX", "")
       INITIAL_ORDER_NUMBER        = lookup(var.variables, "INITIAL_ORDER_NUMBER", 0)
 
+      NODE_ENV                 = "production"
       AWS_XRAY_LOG_LEVEL       = "debug"
       AWS_XRAY_DEBUG_MODE      = "true"
       AWS_XRAY_CONTEXT_MISSING = "LOG_ERROR"

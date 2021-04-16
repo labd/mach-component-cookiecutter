@@ -71,6 +71,7 @@ locals {
 
       
 
+      NODE_ENV                 = "production"
       AWS_XRAY_LOG_LEVEL       = "debug"
       AWS_XRAY_DEBUG_MODE      = "true"
       AWS_XRAY_CONTEXT_MISSING = "LOG_ERROR"

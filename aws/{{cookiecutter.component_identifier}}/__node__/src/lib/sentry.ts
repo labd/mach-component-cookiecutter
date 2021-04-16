@@ -1,20 +1,19 @@
 import { Integrations, AWSLambda } from '@sentry/serverless'
-import { RewriteFrames, Transaction } from '@sentry/integrations'
-import { addExtensionMethods } from '@sentry/tracing'
-
-addExtensionMethods()
+import { RewriteFrames, Transaction, CaptureConsole } from '@sentry/integrations'
 
 AWSLambda.init({
   dsn: process.env.SENTRY_DSN,
-  tracesSampleRate: 1.0,
-  enabled: process.env.SENTRY_DSN ? true : false,
-  environment: process.env.ENVIRONMENT,
+  enabled: !!process.env.SENTRY_DSN && process.env.NODE_ENV === 'production',
   release: process.env.RELEASE,
+  environment: process.env.ENVIRONMENT,
   integrations: [
     new Integrations.Console(),
     new RewriteFrames(),
     new Transaction(),
     new Integrations.Http({ tracing: true }),
+    new CaptureConsole({
+      levels: ['warning', 'error'],
+    }),
   ],
 })
 
@@ -23,4 +22,4 @@ AWSLambda.configureScope(function (scope) {
   scope.setTag('site', process.env.SITE || '')
 })
 
-export const Sentry = AWSLambda
+export default AWSLambda

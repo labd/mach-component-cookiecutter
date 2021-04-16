@@ -4,7 +4,7 @@ import cors from '@koa/cors';
 import { addExtensionMethods } from '@sentry/tracing';
 import router from './routes'
 import logger from './middleware/logger-middleware'
-import { Sentry } from '../../lib/sentry'
+import Sentry from '../../lib/sentry'
 
 const app = new Koa()
 app.use(logger())

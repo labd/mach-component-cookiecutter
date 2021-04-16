@@ -21,9 +21,9 @@
     "@commercetools/sdk-client": "2.1.2",
     "@commercetools/sdk-middleware-auth": "6.1.4",
     "@commercetools/sdk-middleware-http": "6.0.9",{% endif %}
-    "@sentry/integrations": "6.0.4",
-    "@sentry/serverless": "6.0.4",
-    "@sentry/tracing": "6.0.4",
+    "@sentry/integrations": "6.2.5",
+    "@sentry/node": "6.2.5",
+    "@sentry/serverless": "6.2.5",
     "esbuild": "0.8.39",
     "koa": "2.13.1",
     "koa-bodyparser": "4.3.0",

@@ -1,6 +1,6 @@
 import { Message } from '@commercetools/platform-sdk'
 import { SQSEvent, SQSRecord } from 'aws-lambda'
-import { Sentry } from 'lib/sentry'
+import Sentry from 'lib/sentry'
 import { handleOrderCreated } from './handlers'
 
 const handlers = {

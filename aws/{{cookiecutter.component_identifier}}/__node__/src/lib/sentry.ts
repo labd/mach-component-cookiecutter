@@ -14,6 +14,7 @@ AWSLambda.init({
     new CaptureConsole({
       levels: ['warning', 'error'],
     }),
+    new Integrations.OnUnhandledRejection(),
   ],
 })
 

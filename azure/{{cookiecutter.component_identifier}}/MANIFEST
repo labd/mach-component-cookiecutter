@@ -5,14 +5,14 @@ __{{ cookiecutter.language }}__
 
 {% if not cookiecutter.use_commercetools_api_extension|int -%}
 !ct_api_extension
-!tests/unittest/ct_api_extension
+!tests/unittests/ct_api_extension
 {% endif %}
 {% if not cookiecutter.use_commercetools_subscription|int -%}
 !ct_subscription
-!tests/unittest/ct_subscription
+!tests/unittests/ct_subscription
 {% endif %}
 {% if not cookiecutter.use_public_api|int -%}
 !{{ cookiecutter.function_name }}
-!tests/unittest/{{ cookiecutter.function_name }}
+!tests/unittests/{{ cookiecutter.function_name }}
 !tests/fixtures/flask.py
 {% endif %}

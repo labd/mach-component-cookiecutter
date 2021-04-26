@@ -16,3 +16,4 @@ __{{ cookiecutter.language }}__
 !tests/unittests/{{ cookiecutter.function_name }}
 !tests/fixtures/flask.py
 {% endif %}
+{% if not cookiecutter.use_sentry|int -%}!shared/sentry{% endif %}

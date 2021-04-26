@@ -56,13 +56,13 @@ def component_dir(cloud, config, counter):
 
 base = {"name": "unit-test"}
 AZURE_CONFIGS = [
-    {**base, "language": "node"},
-    {**base, "language": "python"},
+    {**base, "language": "node", "sentry_organization": "", "sentry_project": ""},
+    {**base, "language": "python", "sentry_organization": "", "sentry_project": ""},
 ]
 
 AWS_CONFIGS = [
-    {**base, "language": "node"},
-    {**base, "language": "python"},
+    {**base, "language": "node", "sentry_organization": "", "sentry_project": ""},
+    {**base, "language": "python", "sentry_organization": "", "sentry_project": ""},
 ]
 
 for i, config in enumerate(AZURE_CONFIGS, start=1):

@@ -15,4 +15,7 @@ __{{ cookiecutter.language }}__
 {% if not cookiecutter.include_graphql_server|int -%}
 !src/http/graphql
 {% endif %}
+{% if not cookiecutter.sentry_organization|string and not cookiecutter.sentry_project|string -%}
+!src/lib/sentry
+{% endif %}
 {% endif %}

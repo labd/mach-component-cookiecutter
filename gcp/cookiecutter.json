@@ -1,0 +1,14 @@
+{
+    "name": "example",
+    "language": "python",
+    "description": "{{ cookiecutter.name|replace('-', ' ')|replace('_', ' ')|title }} component",
+    "component_identifier": "{{ cookiecutter.name|slugify }}-component",
+    "use_public_api": 1,
+    "function_name": "{{ cookiecutter.name|slugify(separator='_') }}",
+    "use_commercetools": 1,
+    "use_commercetools_api_extension": 1,
+    "use_commercetools_subscription": 1,
+    "shared_resource_group": "",
+    "function_storage_account": "",
+    "function_container_name": "code"
+}

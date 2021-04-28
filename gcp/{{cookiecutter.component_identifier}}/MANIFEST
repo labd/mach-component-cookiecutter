@@ -1,0 +1,18 @@
+__{{ cookiecutter.language }}__
+{% if not cookiecutter.use_commercetools|int -%}!terraform/commercetools.tf{% endif %}
+{% if not cookiecutter.use_commercetools_subscription|int -%}
+!terraform/sqs.tf
+!src/subscriptions
+{% endif %}
+{% if not cookiecutter.use_commercetools_api_extension|int -%}
+!src/extensions
+{% endif %}
+{% if cookiecutter.language == "node" %}
+{% if not cookiecutter.use_commercetools|int -%}
+!src/@types/@commercetools
+!src/lib/commercetools
+{% endif %}
+{% if not cookiecutter.include_graphql_server|int -%}
+!src/http/graphql
+{% endif %}
+{% endif %}

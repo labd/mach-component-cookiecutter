@@ -3,7 +3,10 @@ output "app_service_name" {
   description = "Function app name"
 }
 
-output "app_service_url" {
-  value       = azurerm_function_app.main.default_hostname
-  description = "Function app service url"
+{% if cookiecutter.use_public_api|int %}
+output "azure_endpoint_main" {
+  value = {
+    address = azurerm_function_app.main.default_hostname
+  }
 }
+{% endif %}

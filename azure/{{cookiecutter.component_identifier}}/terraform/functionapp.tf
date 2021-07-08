@@ -59,8 +59,7 @@ locals {
     CTP_CLIENT_ID              = commercetools_api_client.main.id{% endif %}
 
     # Azure deployment
-    # Note: WEBSITE_RUN_FROM_ZIP is needed for consumption plan, but for app service plan this may need to be WEBSITE_RUN_FROM_PACKAGE instead.
-    WEBSITE_RUN_FROM_ZIP           = "https://${data.azurerm_storage_account.shared.name}.blob.core.windows.net/${data.azurerm_storage_container.code.name}/${local.package_name}${data.azurerm_storage_account_blob_container_sas.code_access.sas}"
+    WEBSITE_RUN_FROM_PACKAGE       = "https://${data.azurerm_storage_account.shared.name}.blob.core.windows.net/${data.azurerm_storage_container.code.name}/${local.package_name}${data.azurerm_storage_account_blob_container_sas.code_access.sas}"
     APPINSIGHTS_INSTRUMENTATIONKEY = azurerm_application_insights.insights.instrumentation_key
     FUNCTIONS_WORKER_RUNTIME       = "{{ cookiecutter.language }}"
     {% if cookiecutter.use_public_api|int %}

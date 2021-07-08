@@ -8,6 +8,9 @@ install:
 version:
 	./build version
 
+start:
+	func start --python
+
 pack:
 	./build.sh package
 

@@ -1,7 +1,13 @@
-from azure import functions as func
-from sentry_sdk.integrations.flask import FlaskIntegration
+import azure.functions as func
+
+try:
+    from azure.functions import AsgiMiddleware
+except ImportError:
+    from _future.azure.functions._http_asgi import AsgiMiddleware
+
 from shared.sentry import init_sentry
-from .rest import application
+
+from .rest import app
 
 
 # This signature is type checked by Azure, so don't mess with it.
@@ -13,7 +19,5 @@ def main(req: func.HttpRequest, context: func.Context) -> func.HttpResponse:
 
     init_sentry(
         enable_tracing=enable_tracing,
-        extra_integrations=[FlaskIntegration()],
     )
-
-    return func.WsgiMiddleware(application).main(req, context)
+    return AsgiMiddleware(app).handle(req, context)

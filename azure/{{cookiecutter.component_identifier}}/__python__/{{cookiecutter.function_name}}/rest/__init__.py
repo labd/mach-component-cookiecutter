@@ -1,2 +1,1 @@
-from .api import *  # NOQA
-from .base import application  # NOQA
+from .base import *  # NOQA

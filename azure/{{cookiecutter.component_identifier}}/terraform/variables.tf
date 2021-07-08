@@ -37,8 +37,9 @@ variable "azure_resource_group" {
 
 variable "azure_app_service_plan" {
   type = object({
-    id   = string
-    name = string
+    id                  = string
+    name                = string
+    resource_group_name = string
   })
 }
 

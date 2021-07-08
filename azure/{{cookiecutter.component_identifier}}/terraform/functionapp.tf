@@ -8,6 +8,12 @@ data "azurerm_storage_container" "code" {
   storage_account_name = data.azurerm_storage_account.shared.name
 }
 
+
+data "azurerm_app_service_plan" "main" {
+  name                = var.azure_app_service_plan.name
+  resource_group_name = var.azure_app_service_plan.resource_group_name
+}
+
 data "azurerm_storage_account_blob_container_sas" "code_access" {
   connection_string = data.azurerm_storage_account.shared.primary_connection_string
   container_name    = data.azurerm_storage_container.code.name
@@ -69,6 +75,8 @@ locals {
     {% if cookiecutter.use_commercetools|int -%}
     CTP_CLIENT_SECRET = "@Microsoft.KeyVault(SecretUri=${azurerm_key_vault.main.vault_uri}secrets/${azurerm_key_vault_secret.ct_client_secret.name}/${azurerm_key_vault_secret.ct_client_secret.version})"{% endif %}
   }
+
+  app_is_premium = contains(["ElasticPremium", "Premium", "PremiumV2"], data.azurerm_app_service_plan.main.sku[0].tier)
 }
 
 resource "azurerm_function_app" "main" {
@@ -87,6 +95,8 @@ resource "azurerm_function_app" "main" {
     {% if cookiecutter.language == "node" -%}
     linux_fx_version = "NODE|10.15"{% elif cookiecutter.language == "python" -%}
     linux_fx_version = "PYTHON|3.8"{% endif %}
+    ftps_state                = "Disabled"
+    pre_warmed_instance_count = local.app_is_premium ? 1 : 0
 
     cors {
       allowed_origins = ["*"]

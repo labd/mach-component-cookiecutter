@@ -1,9 +1,7 @@
 import logging
-import requests
-import os
 
-from commercetools import Client, types
-from commercetools._schemas._message import OrderCreatedMessageSchema
+from commercetools import Client
+from commercetools.platform.models import OrderCreatedMessage, Order
 from commercetools.exceptions import CommercetoolsError
 
 
@@ -14,9 +12,9 @@ logger = logging.getLogger(__name__)
 
 
 class OrderCreatedReceiver(MessageReceiver):
-    message_schema = OrderCreatedMessageSchema
+    message_model = OrderCreatedMessage
 
-    def handle(self, message: types.OrderCreatedMessage):
+    def handle(self, message: OrderCreatedMessage):
         if not message.resource or not message.resource.id:
             raise NotificationException("No 'resource' attribute found in message")
 
@@ -26,7 +24,7 @@ class OrderCreatedReceiver(MessageReceiver):
         print(order)
 
 
-def get_order(order_id: str) -> types.Order:
+def get_order(order_id: str) -> Order:
     """Get the latest version of the Order."""
     client = Client()
 

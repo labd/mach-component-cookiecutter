@@ -3,10 +3,10 @@
 VERSION=$(git rev-parse --short HEAD 2>/dev/null || echo "dev" )
 TAGS=$(git tag)
 BASENAME=$(basename $PWD)
-NAME={{ cookiecutter.name|slugify }}-$VERSION
+NAME={{ cookiecutter.name|slugify }}
 
 artifact () {
-    echo "${BASENAME}-$1.zip"
+    echo "${NAME}-$1.zip"
 }
 
 ARTIFACT_NAME=$(artifact $VERSION)

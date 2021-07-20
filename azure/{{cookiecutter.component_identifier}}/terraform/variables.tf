@@ -79,6 +79,12 @@ variable "site" {
   description = "Identifier of the site."
 }
 
+{% if cookiecutter.sentry_project %}
+variable "sentry_dsn" {
+  type    = string
+  default = ""
+}{% endif %}
+
 {% if cookiecutter.use_commercetools|int -%}
 variable "ct_project_key" {
   type = string

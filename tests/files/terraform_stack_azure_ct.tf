@@ -70,6 +70,12 @@ data "azurerm_storage_container" "code" {
   storage_account_name = data.azurerm_storage_account.shared.name
 }
 
+
+data "azurerm_app_service_plan" "main" {
+  name                = var.azure_app_service_plan.name
+  resource_group_name = var.azure_app_service_plan.resource_group_name
+}
+
 data "azurerm_storage_account_blob_container_sas" "code_access" {
   connection_string = data.azurerm_storage_account.shared.primary_connection_string
   container_name    = data.azurerm_storage_container.code.name
@@ -114,8 +120,7 @@ locals {
     CTP_CLIENT_ID              = commercetools_api_client.main.id
 
     # Azure deployment
-    # Note: WEBSITE_RUN_FROM_ZIP is needed for consumption plan, but for app service plan this may need to be WEBSITE_RUN_FROM_PACKAGE instead.
-    WEBSITE_RUN_FROM_ZIP           = "https://${data.azurerm_storage_account.shared.name}.blob.core.windows.net/${data.azurerm_storage_container.code.name}/${local.package_name}${data.azurerm_storage_account_blob_container_sas.code_access.sas}"
+    WEBSITE_RUN_FROM_PACKAGE       = "https://${data.azurerm_storage_account.shared.name}.blob.core.windows.net/${data.azurerm_storage_container.code.name}/${local.package_name}${data.azurerm_storage_account_blob_container_sas.code_access.sas}"
     APPINSIGHTS_INSTRUMENTATIONKEY = azurerm_application_insights.insights.instrumentation_key
     FUNCTIONS_WORKER_RUNTIME       = "python"
     
@@ -127,6 +132,8 @@ locals {
   extra_secrets = {
     CTP_CLIENT_SECRET = "@Microsoft.KeyVault(SecretUri=${azurerm_key_vault.main.vault_uri}secrets/${azurerm_key_vault_secret.ct_client_secret.name}/${azurerm_key_vault_secret.ct_client_secret.version})"
   }
+
+  app_is_premium = contains(["ElasticPremium", "Premium", "PremiumV2"], data.azurerm_app_service_plan.main.sku[0].tier)
 }
 
 resource "azurerm_function_app" "main" {
@@ -143,6 +150,8 @@ resource "azurerm_function_app" "main" {
 
   site_config {
     linux_fx_version = "PYTHON|3.8"
+    ftps_state                = "Disabled"
+    pre_warmed_instance_count = local.app_is_premium ? 1 : 0
 
     cors {
       allowed_origins = ["*"]
@@ -254,10 +263,7 @@ output "app_service_name" {
   description = "Function app name"
 }
 
-output "app_service_url" {
-  value       = azurerm_function_app.main.default_hostname
-  description = "Function app service url"
-}
+
 
 resource "azurerm_storage_account" "main" {
   name                     = replace(lower(format("%s-sa-%s", var.azure_name_prefix, var.azure_short_name)), "-", "")
@@ -311,8 +317,9 @@ variable "azure_resource_group" {
 
 variable "azure_app_service_plan" {
   type = object({
-    id   = string
-    name = string
+    id                  = string
+    name                = string
+    resource_group_name = string
   })
 }
 
@@ -344,6 +351,8 @@ variable "site" {
   type        = string
   description = "Identifier of the site."
 }
+
+
 
 variable "ct_project_key" {
   type = string

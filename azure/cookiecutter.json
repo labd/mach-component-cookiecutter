@@ -10,5 +10,7 @@
     "use_commercetools_subscription": 1,
     "shared_resource_group": "",
     "function_storage_account": "",
-    "function_container_name": "code"
+    "function_container_name": "code",
+    "sentry_organization": "",
+    "sentry_project": ""
 }

@@ -88,6 +88,7 @@ locals {
 
 module "lambda_function" {
   source = "terraform-aws-modules/lambda/aws"
+  version = "2.24.0"
 
   function_name = "${var.site}-unit-test"
   description   = "Unit Test component"
@@ -125,7 +126,7 @@ resource "aws_apigatewayv2_integration" "gateway" {
 
   connection_type = "INTERNET"
   description     = "unit-test HTTP Gateway"
-  integration_uri = module.lambda_function.this_lambda_function_arn
+  integration_uri = module.lambda_function.lambda_function_arn
 }
 
 resource "aws_apigatewayv2_route" "application" {

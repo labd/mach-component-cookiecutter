@@ -35,6 +35,7 @@ locals {
 {% if cookiecutter.use_public_api|int -%}
 module "lambda_function" {
   source = "terraform-aws-modules/lambda/aws"
+  version = "2.24.0"
 
   function_name = "${var.site}-{{cookiecutter.name}}"
   description   = "{{ cookiecutter.description }}"
@@ -76,7 +77,7 @@ resource "aws_apigatewayv2_integration" "gateway" {
 
   connection_type = "INTERNET"
   description     = "{{ cookiecutter.name }} HTTP Gateway"
-  integration_uri = module.lambda_function.this_lambda_function_arn
+  integration_uri = module.lambda_function.lambda_function_arn
 }
 
 resource "aws_apigatewayv2_route" "application" {
@@ -88,6 +89,7 @@ resource "aws_apigatewayv2_route" "application" {
 {% if cookiecutter.use_commercetools_api_extension|int -%}
 module "extension_function" {
   source = "terraform-aws-modules/lambda/aws"
+  version = "2.24.0"
 
   function_name = "${var.site}-{{cookiecutter.name}}-extension"
   description   = "{{ cookiecutter.description }} commercetools api extension"

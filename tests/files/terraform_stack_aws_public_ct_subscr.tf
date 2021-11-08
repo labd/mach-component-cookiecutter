@@ -155,6 +155,7 @@ locals {
 
 module "lambda_function" {
   source = "terraform-aws-modules/lambda/aws"
+  version = "2.24.0"
 
   function_name = "${var.site}-unit-test"
   description   = "Unit Test component"
@@ -192,7 +193,7 @@ resource "aws_apigatewayv2_integration" "gateway" {
 
   connection_type = "INTERNET"
   description     = "unit-test HTTP Gateway"
-  integration_uri = module.lambda_function.this_lambda_function_arn
+  integration_uri = module.lambda_function.lambda_function_arn
 }
 
 resource "aws_apigatewayv2_route" "application" {
@@ -309,7 +310,7 @@ resource "aws_lambda_event_source_mapping" "sqs_lambda_event_mapping_ct_order_cr
   batch_size       = 1
   event_source_arn = aws_sqs_queue.ct_order_created_queue.arn
   enabled          = true
-  function_name    = module.subscription_function.this_lambda_function_arn
+  function_name    = module.subscription_function.lambda_function_arn
 
   depends_on = [module.subscription_function]
 }

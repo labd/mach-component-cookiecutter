@@ -16,7 +16,7 @@ resource "aws_lambda_event_source_mapping" "sqs_lambda_event_mapping_ct_order_cr
   batch_size       = 1
   event_source_arn = aws_sqs_queue.ct_order_created_queue.arn
   enabled          = true
-  function_name    = module.subscription_function.this_lambda_function_arn
+  function_name    = module.subscription_function.lambda_function_arn
 
   depends_on = [module.subscription_function]
 }

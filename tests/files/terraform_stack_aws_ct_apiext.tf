@@ -10,7 +10,7 @@ resource "aws_iam_access_key" "ct_api_extensions" {
 resource "aws_lambda_permission" "ct_api_extension" {
   statement_id  = "AllowCreateOrderLambdaInvoke"
   action        = "lambda:InvokeFunction"
-  function_name = module.extension_function.this_lambda_function_arn
+  function_name = module.extension_function.lambda_function_arn
   principal     = aws_iam_user.ct_api_extensions.arn
 }
 
@@ -19,7 +19,7 @@ resource "commercetools_api_extension" "main" {
 
   destination = {
     type          = "AWSLambda"
-    arn           = module.extension_function.this_lambda_function_arn
+    arn           = module.extension_function.lambda_function_arn
     access_key    = aws_iam_access_key.ct_api_extensions.id
     access_secret = aws_iam_access_key.ct_api_extensions.secret
   }
@@ -125,6 +125,7 @@ locals {
 
 module "extension_function" {
   source = "terraform-aws-modules/lambda/aws"
+  version = "2.24.0"
 
   function_name = "${var.site}-unit-test-extension"
   description   = "Unit Test component commercetools api extension"

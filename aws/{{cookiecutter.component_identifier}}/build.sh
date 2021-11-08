@@ -48,7 +48,8 @@ clean () {
     {% if cookiecutter.language == "python" -%}
     find . -name '*.pyc' -delete
     find . -name '__pycache__' -delete
-    find . -name '*.egg-info' | xargs rm -rf{% endif %}
+    find . -name '*.egg-info' | xargs rm -rf{% else %}
+    echo "Not implemented yet"{% endif %}
 }
 
 case $1 in

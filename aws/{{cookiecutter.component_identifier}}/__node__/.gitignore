@@ -2,6 +2,7 @@
 node_modules/
 .serverless/
 .build/
+.webpack
 coverage
 test_output
 .terraform

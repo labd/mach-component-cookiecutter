@@ -23,6 +23,11 @@ components:
   endpoints:
     main: ...
   {% endif -%}
+  {% if cookiecutter.use_commercetools|int -%}
+  integrations:
+    - aws
+    - commercetools
+  {% endif -%}
   version: <git hash of version you want to release>
 ```
 {% if cookiecutter.use_public_api|int %}

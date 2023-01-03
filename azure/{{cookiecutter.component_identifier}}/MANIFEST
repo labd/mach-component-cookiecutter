@@ -16,3 +16,6 @@ __{{ cookiecutter.language }}__
 !tests/unittests/{{ cookiecutter.function_name }}
 !tests/fixtures/flask.py
 {% endif %}
+{% if not cookiecutter.sentry_organization|string and not cookiecutter.sentry_project|string -%}
+!shared/sentry
+{% endif %}
